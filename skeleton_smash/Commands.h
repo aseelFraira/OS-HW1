@@ -236,9 +236,11 @@ public:
  reporting that the specified signal was sent to the specified job (see example below).
  */
 class KillCommand : public BuiltInCommand {
+    int m_jobID;
+    int m_signal_num;
     // TODO: Add your data members
 public:
-    KillCommand(const char *cmd_line, JobsList *jobs);
+    KillCommand(const char *cmd_line);
 
     virtual ~KillCommand() {
     }
@@ -302,6 +304,8 @@ public:
 };
 
 class aliasCommand : public BuiltInCommand {
+    std::string m_A_command;
+    std::string m_name;
 public:
     aliasCommand(const char *cmd_line);
 
@@ -312,6 +316,7 @@ public:
 };
 
 class unaliasCommand : public BuiltInCommand {
+
 public:
     unaliasCommand(const char *cmd_line);
 
@@ -334,10 +339,13 @@ private:
     SmallShell();
 
 public:
+    //{statci vector = {''}}
     static std::string m_smash_prompt;
     static pid_t m_pid;
     static JobsList m_job_list;
     pid_t m_current_process;
+
+    std::vector<std::pair<std::string,std::string>> m_aliases;
 
    // std::string m_current_cmd;
    // std::string m_old_cmd;
@@ -346,6 +354,7 @@ public:
     void setPid(pid_t pid);
     pid_t getPid() const;
     JobsList* getList() const;
+    bool removeAlias(const std::string& toRemove);
 
     Command *CreateCommand(const char *cmd_line);
 
