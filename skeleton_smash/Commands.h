@@ -13,6 +13,7 @@
 class Command {
 protected:
     std::string m_cmd_line;
+    std::string m_command;
     bool m_isBackGround;
 
     // TODO: Add your data members
@@ -22,15 +23,16 @@ public:
     virtual ~Command();
 
     virtual void execute() = 0;
-
+    std::string getCommand();
+    std::string getCommandLINE();
     //virtual void prepare();
     //virtual void cleanup();
     // TODO: Add your extra methods if needed
 };
 
 class BuiltInCommand : public Command {
-private:
-    std::vector<std::string> m_args;
+protected:
+    std::vector<std::string> m_args; // contains the command and the arguments
 public:
     BuiltInCommand(const char *cmd_line);
 
@@ -126,8 +128,11 @@ public:
   If no argument is provided, this command has no impact
   */
 class ChangeDirCommand : public BuiltInCommand {
+    static std::string m_prev_dir;
+    std::string getFatherDir(const std::string& path);
+
     // TODO: Add your data members public:
-    ChangeDirCommand(const char *cmd_line, char **plastPwd); //Why do we need this thing?
+    ChangeDirCommand(const char *cmd_line); //Why do we need this thing?
 
     virtual ~ChangeDirCommand() {
     }
@@ -151,7 +156,7 @@ class JobsList;
  */
 class QuitCommand : public BuiltInCommand {
     // TODO: Add your data members public:
-    QuitCommand(const char *cmd_line, JobsList *jobs);
+    QuitCommand(const char *cmd_line);
 
     virtual ~QuitCommand() {
     }
@@ -166,11 +171,13 @@ public:
         int m_jobID; //we give the id as the order
         pid_t m_job_pid;
         std::string m_command; //the command of the job
+        bool m_is_stopped;
     public:
         int getJobID() const;
         pid_t getJobPid() const;
+        std::string getCMD() const;
 
-        JobEntry(int jobID,  pid_t pid, const std::string& command);
+        JobEntry(int jobID,  pid_t pid, const std::string& command,bool isStopped);
     };
     std::vector<JobEntry> m_jobs;
     int m_maxID;
@@ -181,7 +188,7 @@ public:
 
     ~JobsList();
 
-    void addJob(Command *cmd, bool isStopped = false);
+    void addJob(Command *cmd,pid_t pid, bool isStopped = false);
 
     void printJobsList();
 
@@ -193,9 +200,11 @@ public:
 
     void removeJobById(int jobId);
 
-    JobEntry *getLastJob(int *lastJobId);
+    JobEntry *getLastJob(); //DONE
 
-    JobEntry *getLastStoppedJob(int *jobId);
+    JobEntry *getLastStoppedJob(int *jobId); //WHERE DO WE NEED THIS
+
+    int getSize() const;
 
     // TODO: Add extra methods or modify exisitng ones as needed
 };
@@ -213,7 +222,7 @@ public:
 class JobsCommand : public BuiltInCommand {
     // TODO: Add your data members
 public:
-    JobsCommand(const char *cmd_line, JobsList *jobs);
+    JobsCommand(const char *cmd_line);
 
     virtual ~JobsCommand() {
     }
@@ -253,7 +262,7 @@ public:
 class ForegroundCommand : public BuiltInCommand {
     // TODO: Add your data members
 public:
-    ForegroundCommand(const char *cmd_line, JobsList *jobs);
+    ForegroundCommand(const char *cmd_line);
 
     virtual ~ForegroundCommand() {
     }
@@ -329,9 +338,14 @@ public:
     static pid_t m_pid;
     static JobsList m_job_list;
     pid_t m_current_process;
+
    // std::string m_current_cmd;
    // std::string m_old_cmd;
 
+    void setPrompt(const std::string& newPrompt);
+    void setPid(pid_t pid);
+    pid_t getPid() const;
+    JobsList* getList() const;
 
     Command *CreateCommand(const char *cmd_line);
 
