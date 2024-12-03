@@ -6,7 +6,15 @@
 #define COMMAND_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
 
+
+
+/*In command class we will have a 'struct' of each class and how we are going
+ * to use them*/
 class Command {
+protected:
+    std::string m_cmd_line;
+    bool m_isBackGround;
+
     // TODO: Add your data members
 public:
     Command(const char *cmd_line);
@@ -21,6 +29,8 @@ public:
 };
 
 class BuiltInCommand : public Command {
+private:
+    std::vector<std::string> m_args;
 public:
     BuiltInCommand(const char *cmd_line);
 
@@ -59,26 +69,22 @@ public:
 
     void execute() override;
 };
-
-class ChangeDirCommand : public BuiltInCommand {
-    // TODO: Add your data members public:
-    ChangeDirCommand(const char *cmd_line, char **plastPwd);
-
-    virtual ~ChangeDirCommand() {
-    }
-
-    void execute() override;
-};
-
-class GetCurrDirCommand : public BuiltInCommand {
+/** Command number 1:
+ chprompt command will allow the user to change the prompt displayed by the smash while
+  waiting for the next command.
+  If no parameters are provided, the prompt shall be reset to smash. If more than on
+ */
+class ChangePromptCommand : public BuiltInCommand{
 public:
-    GetCurrDirCommand(const char *cmd_line);
-
-    virtual ~GetCurrDirCommand() {
-    }
-
+    ChangePromptCommand(const char *cmd_line);
+    virtual ~ChangePromptCommand();
     void execute() override;
 };
+
+/** Command number 2:
+ showpid command prints the smash PID
+  If any number of arguments were provided with this command, they will be ignored.
+ */
 
 class ShowPidCommand : public BuiltInCommand {
 public:
@@ -90,8 +96,59 @@ public:
     void execute() override;
 };
 
-class JobsList;
+/** Command number 3:
+  pwd command has no arguments.
+  The pwd command prints the full path of the current working directory. In the next section,
+  we will learn how to change the current working directory using the `cd` command.
+  You may use getcwd system call to retrieve the current working directory.
+ */
+class GetCurrDirCommand : public BuiltInCommand {
+public:
+    GetCurrDirCommand(const char *cmd_line);
 
+    virtual ~GetCurrDirCommand() {
+    }
+
+    void execute() override;
+};
+
+
+/** Command number 4:
+  The cd (Change Directory) command takes a single argument <path> that specifies either a
+  relative or full path to change the current working directory to.
+  There's a special argument, `-`, that cd can accept. When `-` is the only argument provided
+  to the cd command, it instructs the shell to change the current working directory to the
+  last working directory.
+  For example, if the current working directory is X, and then the cd command is used to
+  change the directory to Y, executing cd - would then set the current working directory
+  back to X, executing it again would set the current directory to Y.
+  You may use chdir system call to change the current working directory.
+  If no argument is provided, this command has no impact
+  */
+class ChangeDirCommand : public BuiltInCommand {
+    // TODO: Add your data members public:
+    ChangeDirCommand(const char *cmd_line, char **plastPwd); //Why do we need this thing?
+
+    virtual ~ChangeDirCommand() {
+    }
+
+    void execute() override;
+};
+
+
+
+class JobsList;
+/** Command number 7:
+ quit command exits the smash. Only if the kill argument was specified (which is optional)
+ then smash should kill (by sending SIGKILL signal) all of its unfinished jobs and print (before
+ exiting) the number of processes/jobs that were killed, their PIDs and command-lines (see
+ the example for output formatting)
+ Note: You may assume that the kill argument, if present, will appear first.
+
+ **Error handling**:
+ If any number of arguments (other than kill) were provided with this command, they will
+ be ignored.
+ */
 class QuitCommand : public BuiltInCommand {
     // TODO: Add your data members public:
     QuitCommand(const char *cmd_line, JobsList *jobs);
@@ -106,8 +163,17 @@ class QuitCommand : public BuiltInCommand {
 class JobsList {
 public:
     class JobEntry {
-        // TODO: Add your data members
+        int m_jobID; //we give the id as the order
+        pid_t m_job_pid;
+        std::string m_command; //the command of the job
+    public:
+        int getJobID() const;
+        pid_t getJobPid() const;
+
+        JobEntry(int jobID,  pid_t pid, const std::string& command);
     };
+    std::vector<JobEntry> m_jobs;
+    int m_maxID;
 
     // TODO: Add your data members
 public:
@@ -133,6 +199,16 @@ public:
 
     // TODO: Add extra methods or modify exisitng ones as needed
 };
+/** command number 5:
+ jobs command prints the jobs list which contains the unfinished jobs
+ (Those running in the background).
+ The list should be printed in the following format: [<job-id>] <command>, where
+ <command> is the original command provided by the user (including aliases as
+ discussed later).
+ The jobs list should be printed in a sorted order w.r.t the job-id.
+ Make sure you delete all finished jobs before printing the jobs list.
+ If any number of arguments were provided with this command, they will be ignored.
+ */
 
 class JobsCommand : public BuiltInCommand {
     // TODO: Add your data members
@@ -145,6 +221,11 @@ public:
     void execute() override;
 };
 
+/** Command number 8:
+ Kill command sends a signal whose number is specified by <signum> to a job whose
+ sequence ID in jobs list is <job-id> (same as job-id in jobs command) and prints a message
+ reporting that the specified signal was sent to the specified job (see example below).
+ */
 class KillCommand : public BuiltInCommand {
     // TODO: Add your data members
 public:
@@ -156,6 +237,19 @@ public:
     void execute() override;
 };
 
+
+/** Command number 6:
+ fg command brings a process that runs in the background to the foreground.
+ fg command prints the command line of that job along with its PID (as can be seen in the
+ example) and then waits for it (hint: waitpid), which in effect will bring the requested
+ process to run in the foreground.
+ The job-id argument is an optional argument. If it is specified, then the specific job which
+ its job id (as printed in jobs command) should be brought to the foreground. If the job-id
+ argument is not specified, then the job with the maximal job id in the jobs list should be
+ selected to be brought to the foreground.
+ Side effects: After bringing the job to the foreground, it should be removed from the
+ jobs list.
+ */
 class ForegroundCommand : public BuiltInCommand {
     // TODO: Add your data members
 public:
@@ -219,12 +313,26 @@ public:
 };
 
 
+
+/*our small shell is basically a son process of the linux shell
+ * so  we need to save it's pid
+ * Jobs: all the commands that were sent to the backgroun
+ * We need A jobList class and Job class
+ * */
 class SmallShell {
 private:
     // TODO: Add your data members
     SmallShell();
 
 public:
+    static std::string m_smash_prompt;
+    static pid_t m_pid;
+    static JobsList m_job_list;
+    pid_t m_current_process;
+   // std::string m_current_cmd;
+   // std::string m_old_cmd;
+
+
     Command *CreateCommand(const char *cmd_line);
 
     SmallShell(SmallShell const &) = delete; // disable copy ctor

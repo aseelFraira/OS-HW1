@@ -73,6 +73,38 @@ void _removeBackgroundSign(char *cmd_line) {
     // truncate the command line string up to the last non-space character
     cmd_line[str.find_last_not_of(WHITESPACE, idx) + 1] = 0;
 }
+std::vector<std::string> getArgs(const char *cmd_line) {
+    std::vector<std::string> argsVec;
+    char **args = (char **) malloc(COMMAND_MAX_ARGS * sizeof(char *));
+    for (int i = 0; i < COMMAND_MAX_ARGS; i++)
+        args[i] = nullptr;
+
+    int num = _parseCommandLine(cmd_line, args);
+    for (int i = 0; i < num; i++) {
+        argsVec.emplace_back(args[i]);
+        free(args[i]);
+    }
+    free(args);
+    return argsVec;
+}
+
+
+BuiltInCommand::BuiltInCommand(const char *cmd_line): Command(cmd_line){
+
+    int len = strlen(cmd_line);
+    char* cpy = (char*) malloc(sizeof(char) * (len + 1));
+    strcpy(cpy, cmd_line);
+    _removeBackgroundSign(cpy);
+
+    m_args = getArgs(cpy);
+
+    if(m_isBackGround){
+        //TODO:: BACKGROUND!
+    }else{
+        //TODO:: EXECUTE!
+    }
+}
+
 
 // TODO: Add your implementation for classes in Commands.h 
 
@@ -84,27 +116,70 @@ SmallShell::~SmallShell() {
 // TODO: add your implementation
 }
 
+/***********JOB CLASS************/
+JobsList::JobsList() {}
+JobsList::JobEntry::JobEntry(int jobID, pid_t pid, const std::string& command):
+m_jobID(jobID),m_job_pid(pid),m_command(command) {}
+
+pid_t JobsList::JobEntry::getJobPid() const {
+    return m_job_pid;
+}
+
+int JobsList::JobEntry::getJobID() const {
+    return m_jobID;
+}
+
+void JobsList::addJob(Command *cmd, bool isStopped) {
+    
+}
+
+/***********JOB CLASS************/
+
+
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
 Command *SmallShell::CreateCommand(const char *cmd_line) {
-    // For example:
-  /*
+
   string cmd_s = _trim(string(cmd_line));
   string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
 
-  if (firstWord.compare("pwd") == 0) {
-    return new GetCurrDirCommand(cmd_line);
+  if (firstWord == "chprompt") {
+    return new ChangePromptCommand(cmd_line);
   }
-  else if (firstWord.compare("showpid") == 0) {
+  else if (firstWord == "showpid") {
     return new ShowPidCommand(cmd_line);
   }
-  else if ...
-  .....
+  else if (firstWord.compare("pwd") == 0) {
+      return new GetCurrDirCommand(cmd_line);
+  }
+  else if (firstWord.compare("cd") == 0) {
+      return new ChangeDirCommand(cmd_line);
+  }
+  else if (firstWord.compare("jobs") == 0) {
+      return new JobsCommand(cmd_line);
+  }
+  else if (firstWord.compare("fg") == 0) {
+      return new ShowPidCommand(cmd_line);
+  }
+  else if (firstWord.compare("quit") == 0) {
+      return new ShowPidCommand(cmd_line);
+  }
+  else if (firstWord.compare("kill") == 0) {
+      return new ShowPidCommand(cmd_line);
+  }
+  else if (firstWord.compare("alias") == 0) {
+      return new ShowPidCommand(cmd_line);
+  }
+  else if (firstWord.compare("unalias") == 0) {
+      return new ShowPidCommand(cmd_line);
+  }
+
+
   else {
     return new ExternalCommand(cmd_line);
   }
-  */
+
     return nullptr;
 }
 
