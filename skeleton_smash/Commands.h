@@ -128,6 +128,7 @@ public:
   If no argument is provided, this command has no impact
   */
 class ChangeDirCommand : public BuiltInCommand {
+public:
     static std::string m_prev_dir;
     std::string getFatherDir(const std::string& path);
 
@@ -366,6 +367,7 @@ public:
         // Instantiated on first use.
         return instance;
     }
+    std::string getPrompt() const;
 
     ~SmallShell();
 

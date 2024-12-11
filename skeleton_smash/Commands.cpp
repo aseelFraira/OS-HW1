@@ -73,7 +73,7 @@ void _removeBackgroundSign(char *cmd_line) {
     // truncate the command line string up to the last non-space character
     cmd_line[str.find_last_not_of(WHITESPACE, idx) + 1] = 0;
 }
-
+////////////////////////////////////////////////////////////////////////////////
 std::vector<std::string> getArgs(const char *cmd_line) {
     std::vector<std::string> argsVec;
     char **args = (char **) malloc(COMMAND_MAX_ARGS * sizeof(char *));
@@ -89,6 +89,18 @@ std::vector<std::string> getArgs(const char *cmd_line) {
     return argsVec;
 }
 
+bool checkFormatNumber(const std::string& str) {
+    int i  = 0;
+    while (str[i]) {
+        if (!isdigit(str[i])) {
+            return false;
+        }
+        i++;
+    }
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 Command::Command(const char *cmd_line):m_cmd_line(std::string(cmd_line)){
     std::string cpy = std::string(cmd_line);
     size_t firstSpacePos = cpy.find(' ');
@@ -307,13 +319,13 @@ int JobsList::getSize() const {
 ///////////////////////**COMMAND NUMBER 6 ---- FG**//////////////////////
 ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
     JobsList &lst = SmallShell::m_job_list;
-    if (m_args.size() > 2) { //if we have more than one argument
+    if(!checkFormatNumber(m_args[1])){
         std::cerr << "smash error: fg: invalid arguments\n";
-    } else if (lst.getSize() == 0 && m_args.size() == 1) {
+    }else if (m_args.size() > 2) { //if we have more than one argument
+        std::cerr << "smash error: fg: invalid arguments\n";
+    }else if (lst.getSize() == 0 && m_args.size() == 1) {
         std::cerr << "smash error: fg: jobs list is empty\n";
-    }
-
-    else if (lst.getJobById(atoi(m_args[1].c_str())) == nullptr) {
+    }else if (lst.getJobById(atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
         std::cerr << "smash error: fg: jobs list is empty\n";
     }
 }
@@ -331,7 +343,138 @@ void ForegroundCommand::execute() {
     SmallShell::getInstance().setPid(-1);
 }
 
-///////////////////////**COMMAND NUMBER 7 ---- FG**//////////////////////
+///////////////////////**COMMAND NUMBER 7 ---- QUIT**//////////////////////
+QuitCommand::QuitCommand(const char *cmd_line): BuiltInCommand(cmd_line) {
+}
+
+void QuitCommand::execute() {
+    if(m_args.size() > 2 && m_args[1] == "kill"){
+        JobsList &j = SmallShell::getInstance().m_job_list;
+        std::cout << "sending SIGKILL signal to" << j.getSize() << "jobs" <<"\n";
+        if(j.getSize() > 0 ) {
+            j.killAllJobs();
+        }
+    }
+    exit(0); //TODO: SHOULD WE USE EXIST?!
+}
+
+///////////////////////**COMMAND NUMBER 8 ---- KILL**//////////////////////
+
+KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
+    if (!checkFormatNumber(m_args[1]) || !checkFormatNumber(m_args[2])) {
+        std::cerr << "smash error: kill: invalid arguments\n" ;
+    }
+    if(m_args.size() > 3 || m_args.size() < 2){
+        std::cerr << "smash error: kill: invalid arguments\n" ;
+
+    }
+    m_jobID = std::atoi(m_args[2].c_str());
+    m_signal_num = std::stoi(m_args[1].substr(1));
+    if(!SmallShell::getInstance().getList()->getJobById(m_jobID)){
+        std::cerr << "smash error: kill: job-id "<<m_jobID<<" does not exist\n" ;
+    }
+    if(m_signal_num < 0 || m_signal_num > 31){
+        perror("smash error: kill failed");
+    }
+}
+
+void KillCommand::execute() {
+    JobsList* list = SmallShell::getInstance().getList();
+    JobsList::JobEntry *job = list->getJobById(m_jobID);
+    if (job != nullptr)
+    {
+        if (kill(job->getJobPid(),m_signal_num ) != 0) // failure
+        {
+            perror("smash error: kill failed");
+            return;
+        }
+        std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
+    }
+}
+///////////////////////**COMMAND NUMBER 9 ---- ALIAS**//////////////////////
+
+
+aliasCommand::aliasCommand(const char *cmd_line): BuiltInCommand(cmd_line) {
+    std::string name, command;
+    std::string input = std::string(cmd_line);
+    // Find the position of '='
+    size_t equal_pos = input.find('=');
+    if(equal_pos == -1){
+        std::cerr << "alias: invalid alias format \n";
+    }
+    if (equal_pos != std::string::npos) {
+        // Extract the name
+        name = input.substr(0, equal_pos);
+
+        // Extract the command (excluding quotes)
+        size_t start_quote = input.find('\'', equal_pos);
+        size_t end_quote = input.rfind('\'');
+        if (start_quote != std::string::npos &&
+            end_quote != std::string::npos && start_quote < end_quote) {
+            command = input.substr(start_quote + 1,
+                                   end_quote - start_quote - 1);
+            }
+    }
+    for (size_t i = 0; i < input.length(); ++i) {
+        if (!(input[i] >= 'a' && input[i] < 'z') ||
+            !(input[i] >= 'A' && input[i] < 'Z')
+            || !(input[i] >= '0' && input[i] <= '9') || !(input[i] != '_')) {
+            std::cerr << "smash error: alias: invalid alias format\n";
+
+            }
+    }
+    for (const auto &p : SmallShell::getInstance().m_aliases){
+        if (p.first == name) {
+            std::cerr << "smash error: alias: invalid alias format\n";
+        }
+    }
+    m_A_command = command;
+    m_name = name;
+    // TODO :
+
+}
+
+void aliasCommand::execute() {
+    if(m_args.size() == 1){
+        for(const auto& p : SmallShell::getInstance().m_aliases){
+            std::cout<<p.first<<"='"<< p.second << "'\n" ;
+        }
+    }else{
+        SmallShell::getInstance().m_aliases.push_back(pair<std::string,
+                                                      std::string>(m_name,m_A_command));
+    }
+
+}
+
+///////////////////////**COMMAND NUMBER 10 ---- UNALIAS**//////////////////////
+
+unaliasCommand::unaliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line){
+    if(m_args.size() == 1){
+        std::cerr << "smash error: unalias: not enough arguments\n";
+    }
+}
+void unaliasCommand::execute() {
+    int size = m_args.size();
+    for(int i = 1; i < size;i++){
+        if(!SmallShell::getInstance().removeAlias(m_args[i])){
+            std::cerr << "smash error: unalias: not enough arguments\n";
+            //TODO:
+        }
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
 
 
 SmallShell::SmallShell() {
@@ -349,117 +492,9 @@ SmallShell::~SmallShell() {
 
 
 
-///////////////////////////////////QUIT COMMAND/////////////////////////////////////////
 
 
 
-void QuitCommand::execute() {
-    if(m_args.size() > 2 && m_args[1] == "kill"){
-        JobsList &j = SmallShell::getInstance().m_job_list;
-        std::cout << "sending SIGKILL signal to" << j.getSize() << "jobs" <<"\n";
-        if(j.getSize() > 0 ) {
-            j.killAllJobs();
-        }
-    }
-    exit(0);
-}
-
-/////////////////////////////////KILL COMMAND////////////////////////////////////////////
-KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
-    if(m_args.size() > 3 || m_args.size() < 2){
-        std::cerr << "smash error: kill: invalid arguments\n" ;
-
-    }
-    m_jobID = atoi(m_args[2].c_str());
-    m_signal_num = std::stoi(m_args[1].substr(1));
-    if(!SmallShell::getInstance().getList()->getJobById(m_jobID)){
-        std::cerr << "smash error: kill: job-id "<<m_jobID<<" does not exist\n" ;
-    }
-    if(m_signal_num < 0 || m_signal_num > 31){
-        //perror
-    }
-}
-
-void KillCommand::execute() {
-
-    JobsList* list = SmallShell::getInstance().getList();
-    JobsList::JobEntry *job = list->getJobById(m_jobID);
-    if (job != nullptr)
-    {
-        if (kill(job->getJobPid(),m_signal_num ) != 0) // failure
-        {
-            perror("smash error: kill failed");
-            return;
-        }
-        std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
-    }
-}
-   //////////////////////////////////////////////////////////////////////////
-   aliasCommand::aliasCommand(const char *cmd_line): BuiltInCommand(cmd_line) {
-       std::string name, command;
-       std::string input = std::string(cmd_line);
-       // Find the position of '='
-       size_t equal_pos = input.find('=');
-       if(equal_pos == -1){
-           std::cerr << "alias: invalid alias format \n";
-       }
-       if (equal_pos != std::string::npos) {
-           // Extract the name
-           name = input.substr(0, equal_pos);
-
-           // Extract the command (excluding quotes)
-           size_t start_quote = input.find('\'', equal_pos);
-           size_t end_quote = input.rfind('\'');
-           if (start_quote != std::string::npos &&
-               end_quote != std::string::npos && start_quote < end_quote) {
-               command = input.substr(start_quote + 1,
-                                      end_quote - start_quote - 1);
-           }
-       }
-       for (size_t i = 0; i < input.length(); ++i) {
-           if (!(input[i] >= 'a' && input[i] < 'z') ||
-               !(input[i] >= 'A' && input[i] < 'Z')
-               || !(input[i] >= '0' && input[i] <= '9') || !(input[i] != '_')) {
-               std::cerr << "smash error: alias: invalid alias format\n";
-
-           }
-       }
-       for (const auto &p : SmallShell::getInstance().m_aliases){
-           if (p.first == name) {
-               std::cerr << "smash error: alias: invalid alias format\n";
-           }
-       }
-       m_A_command = command;
-       m_name = name;
-        // TODO :
-
-   }
-
-void aliasCommand::execute() {
-    if(m_args.size() == 1){
-        for(const auto& p : SmallShell::getInstance().m_aliases){
-                std::cout<<p.first<<"='"<< p.second << "'\n" ;
-        }
-    }else{
-        SmallShell::getInstance().m_aliases.push_back(pair<std::string,
-                                                      std::string>(m_name,m_A_command));
-    }
-
-}
-unaliasCommand::unaliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line){
-    if(m_args.size() == 1){
-        std::cerr << "smash error: unalias: not enough arguments\n";
-    }
-}
-void unaliasCommand::execute() {
-    int size = m_args.size();
-    for(int i = 1; i < size;i++){
-        if(!SmallShell::getInstance().removeAlias(m_args[i])){
-            std::cerr << "smash error: unalias: not enough arguments\n";
-            //TODO:
-        }
-    }
-}
 
 
 
@@ -535,12 +570,15 @@ JobsList *SmallShell::getList() const {
 
 bool SmallShell::removeAlias(const std::string& toRemove) {
     for (auto it = m_aliases.begin(); it != m_aliases.end(); ) {
-        if (it->first == toRemove) {  // Compare with the alias name
+        if (it->first == toRemove) {
             it = m_aliases.erase(it); // Erase and update iterator
             return true;
-        } else {
-            ++it; // Move to the next element
         }
+        ++it; // Move to the next element
     }
     return false;
+}
+
+std::string SmallShell::getPrompt() const {
+    return m_smash_prompt;
 }
