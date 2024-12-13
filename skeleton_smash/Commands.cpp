@@ -823,6 +823,16 @@ std::string SmallShell::m_smash_prompt = "smash";
 pid_t SmallShell::m_pid = -1;
 
 void SmallShell::executeCommand(const char *cmd_line) {
+    m_job_list.removeFinishedJobs();
+    Command *command = CreateCommand(cmd_line);
+    if (command) {
+        try {
+            command->execute();
+        }catch (std::exception &e) {
+
+        }
+        delete command;
+    }
     // TODO: Add your implementation here
     // for example:
     // Command* cmd = CreateCommand(cmd_line);
