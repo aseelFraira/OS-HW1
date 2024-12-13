@@ -312,7 +312,7 @@ void RedirectionCommand::execute() {
         perror("smash error: dup2 failed");
         return;
     }
-    if (close(FDcpy) == -1) {
+    if (close(FDcpy)) {
         perror("smash error: close failed");
         return;
     }
@@ -855,6 +855,9 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
             executeCommand((alias.second + ' ' +args).c_str() );
             return nullptr;
         }
+    }
+    if (is_redirectional(cmd_line)) {
+        return new RedirectionCommand(cmd_line);
     }
 
   if (firstWord == "chprompt") {
