@@ -390,6 +390,7 @@ void ListDirCommand::execute() {
     for (const auto& file : m_files) {
         std::cout << std::string(m_indent_level, '\t') << file << std::endl;
     }
+    return;
 }
 
 
