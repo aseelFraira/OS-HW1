@@ -237,13 +237,15 @@ m_command(),m_file_path() {
     }
     m_redirection_1_2 = getRedirectionType(cmd_line);
     std::string cpy_cmd_line = std::string(cmd_line);
-    m_command = _trim(cpy_cmd_line.substr(0, cpy_cmd_line.find_first_of(">")).c_str());
+    m_command = _trim(cpy_cmd_line.substr(0, cpy_cmd_line.find_first_of(">")));
     m_file_path = _trim(cpy_cmd_line.substr(cpy_cmd_line.find_last_of(">") + 1));
+
 }
 
 void RedirectionCommand::execute() {
     SmallShell &small_shell = SmallShell::getInstance();
     int FDcpy = dup(1);
+    int newFD = -1;
     if (FDcpy == -1) {
         perror("smash error: dup failed");
         return;
@@ -252,11 +254,52 @@ void RedirectionCommand::execute() {
         perror("smash error: close failed");
         return;
     }
-    if (m_redirection_1_2 == RedirectionType::two_arrows) {
-        int newFD = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (m_redirection_1_2 == RedirectionType::one_arrow) {
+        newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644); //erease content
+        if (newFD == -1){
+            perror("smash error: open failed");
+            if (dup2(FDcpy, 1) == -1) // restore
+            {
+                perror("smash error: dup2 failed");
+                return;
+            }
+            if (close(FDcpy) == -1) // close duplicate
+            {
+                perror("smash error: close failed");
+                return;
+            }
+             return;
+        }
     }
+    else if (m_redirection_1_2 == RedirectionType::two_arrows) {
+        newFD = open(m_file_path.c_str(), O_RDWR | O_CREAT | O_APPEND, 0655); // append to content
+        if (newFD == -1) {
+            perror("smash error: open failed");
+            if (dup2(FDcpy, 1) == -1) {
+                perror("smash error: dup2 failed");
+                return;
+            }
+            if (close(FDcpy) == -1) {
+                perror("smash error: close failed");
+                return;
+            }
+            return;
+        }
+    }
+    small_shell.executeCommand(m_command.c_str());
 
-
+    if (close(newFD) == -1) {
+        perror("smash error: close failed");
+        return;
+    }
+    if (dup2(FDcpy, 1) == -1) {
+        perror("smash error: dup2 failed");
+        return;
+    }
+    if (close(FDcpy) == -1) {
+        perror("smash error: close failed");
+        return;
+    }
 }
 
 
