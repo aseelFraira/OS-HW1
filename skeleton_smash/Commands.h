@@ -28,6 +28,8 @@ public:
     //virtual void prepare();
     //virtual void cleanup();
     // TODO: Add your extra methods if needed
+    std::string m_remove_background_char(const char *cmd_line) const;
+
 };
 
 class BuiltInCommand : public Command {
@@ -40,11 +42,28 @@ public:
     }
 };
 
+
+
+
 class ExternalCommand : public Command {
+
 public:
+    pid_t m_pid;
+    bool m_is_complex;
+
+    bool complexity(const char *cmd_line);
+
     ExternalCommand(const char *cmd_line);
 
     virtual ~ExternalCommand() {
+    }
+    const pid_t get_pid() const
+    {
+        return m_pid;
+    }
+    void set_pid(pid_t pid)
+    {
+        m_pid = pid;
     }
 
     void execute() override;
@@ -63,11 +82,19 @@ public:
 
 class RedirectionCommand : public Command {
     // TODO: Add your data members
+    enum class RedirectionType
+    {
+        one_arrow, two_arrows
+    };
+    RedirectionType m_redirection_1_2;
+    std::string m_command;
+    std::string m_file_path;
+    RedirectionType getRedirectionType(const char *cmd_line);
 public:
+
     explicit RedirectionCommand(const char *cmd_line);
 
-    virtual ~RedirectionCommand() {
-    }
+    virtual ~RedirectionCommand() = default;
 
     void execute() override;
 };
@@ -128,6 +155,7 @@ public:
   If no argument is provided, this command has no impact
   */
 class ChangeDirCommand : public BuiltInCommand {
+public:
     static std::string m_prev_dir;
     std::string getFatherDir(const std::string& path);
 
@@ -366,6 +394,7 @@ public:
         // Instantiated on first use.
         return instance;
     }
+    std::string getPrompt() const;
 
     ~SmallShell();
 
