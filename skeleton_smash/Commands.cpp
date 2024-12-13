@@ -855,7 +855,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 
     for (const auto& alias : m_aliases) {
         if (alias.first == firstWord) {
-            executeCommand((alias.second + args).c_str() );
+            executeCommand((alias.second + ' ' +args).c_str() );
             return nullptr;
         }
     }
