@@ -126,6 +126,11 @@ Command::~Command() {
 std::string Command::getCommand() {
     return m_command;
 }
+std::string Command::getCommandLINE() {
+    return m_cmd_line;
+}
+
+
 
 BuiltInCommand::BuiltInCommand(const char *cmd_line): Command(cmd_line){
     int len = strlen(cmd_line);
