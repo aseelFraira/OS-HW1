@@ -660,7 +660,7 @@ KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
         m_jobID = std::atoi(m_args[2].c_str());
         m_signal_num = std::stoi(m_args[1].substr(1));
         if (m_signal_num < 0 || m_signal_num > 31) {
-            errno = EINVAL;
+            errno = 0;
             perror("smash error: kill failed");
             return;
         }
