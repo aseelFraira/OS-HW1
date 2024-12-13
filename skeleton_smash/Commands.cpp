@@ -161,10 +161,9 @@ ExternalCommand::ExternalCommand(const char *cmd_line):Command(cmd_line), m_is_c
 
 bool ExternalCommand::complexity(const char *cmd_line)
 {
-    for (const char *ptr = cmd_line; *ptr != '\0'; ++ptr) {
-        if (*ptr == '*' || *ptr == '?') {
-            return true;
-        }
+    if (std::string(cmd_line).find_first_of("*?") != std::string::npos)
+    {
+        return true;
     }
     return false;
 }
@@ -213,7 +212,6 @@ void ExternalCommand::execute() {
             SmallShell::getInstance().getList()->addJob(this, m_pid);
         } else {
             SmallShell::getInstance().setPid(m_pid);
-
             if (waitpid(m_pid, nullptr, WUNTRACED) == -1) {
                 perror("smash error: waitpid failed");
             }
