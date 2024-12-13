@@ -349,7 +349,7 @@ void ListDirCommand::execute() {
     m_files.clear();
     m_directories.clear();
 
-    DIR* dir = opendir(m_current_dir.c_str());
+    DIR* dir = opendir((m_dir_path + '/'+ m_current_dir).c_str());
     if (!dir) {
         perror("opendir");
         return;
