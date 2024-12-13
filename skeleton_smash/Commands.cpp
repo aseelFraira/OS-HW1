@@ -319,16 +319,10 @@ void RedirectionCommand::execute() {
 }
 
 ///////////////////////**COMMAND NUMBER 3 ---- listdir**///////////////////
-ListDirCommand::ListDirCommand(const char* cmd_line, int indent) : Command(cmd_line) {
-    // Copy the command line to process it
+ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_line) {
     int len = strlen(cmd_line);
-    char* cpy = (char*)malloc(sizeof(char) * (len + 1));
-    if (!cpy) {
-        perror("malloc failed");
-        throw std::bad_alloc(); // Handle allocation failure
-    }
+    char* cpy = (char*) malloc(sizeof(char) * (len + 1));
     strcpy(cpy, cmd_line);
-
     _removeBackgroundSign(cpy);
     m_args = getArgs(cpy);
     m_indent_level = indent;
@@ -336,80 +330,63 @@ ListDirCommand::ListDirCommand(const char* cmd_line, int indent) : Command(cmd_l
     char* buffer = getcwd(nullptr, 0); // Allocate buffer dynamically
     if (buffer == nullptr) {
         perror("smash error: getcwd failed");
-        free(cpy); // Free memory before returning
-        throw std::runtime_error("Failed to get current working directory");
+        return;
     }
-    m_dir_path = std::string(buffer); // Set the current directory path
-    free(buffer); // Free dynamically allocated memory
+    m_dir_path = std::string(buffer);
 
     if (m_args.size() > 2) {
         std::cerr << "smash error: listdir: too many arguments\n";
-        free(cpy); // Free memory before returning
-        throw std::invalid_argument("Too many arguments provided to ListDirCommand");
     } else if (m_args.size() == 1) {
-        m_current_dir = m_dir_path; // Default to the current directory
+        m_current_dir = buffer;
     } else {
         m_current_dir = m_args[1];
     }
+    free(buffer); // Free dynamically allocated memory
 
-    free(cpy); // Free the copied command line memory
 }
 
 void ListDirCommand::execute() {
     m_files.clear();
     m_directories.clear();
 
-    // Attempt to open the directory
-    DIR* dir = opendir(m_current_dir.c_str());
+    DIR* dir = opendir((m_current_dir).c_str());
     if (!dir) {
-        perror("opendir failed");
+        perror("opendir");
         return;
     }
 
     struct dirent* entry;
     while ((entry = readdir(dir)) != nullptr) {
         std::string name(entry->d_name);
-
-        // Skip special entries "." and ".."
         if (name == "." || name == "..") {
             continue;
         }
 
-        // Construct the full path for the entry
         std::string path = m_current_dir + '/' + name;
         struct stat path_stat;
         if (stat(path.c_str(), &path_stat) == -1) {
-            perror("stat failed");
+            perror("stat");
             continue;
         }
 
-        // Check if the entry is a directory or a file
         if (S_ISDIR(path_stat.st_mode)) {
             m_directories.push_back(name);
         } else {
             m_files.push_back(name);
         }
     }
-    closedir(dir); // Close the directory stream
+    closedir(dir);
 
-    // Sort directories and files alphabetically
     std::sort(m_directories.begin(), m_directories.end());
     std::sort(m_files.begin(), m_files.end());
 
-    // Print directories and recursively execute for each
     for (const auto& dir : m_directories) {
         std::cout << std::string(m_indent_level, '\t') << dir << std::endl;
 
-        // Recursively call execute on the subdirectory
         ListDirCommand recursive((m_current_dir + '/' + dir).c_str(), m_indent_level + 1);
-        try {
-            recursive.execute();
-        } catch (const std::exception& e) {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
+        recursive.execute();
     }
 
-    // Print files
     for (const auto& file : m_files) {
         std::cout << std::string(m_indent_level, '\t') << file << std::endl;
     }
