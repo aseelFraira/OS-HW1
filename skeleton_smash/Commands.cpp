@@ -190,7 +190,7 @@ void ExternalCommand::execute() {
     }
     else {
         m_pid = pid;
-        if (m_isBackGround()) {
+        if (m_isBackGround) {
             SmallShell::getInstance().getList()->addJob(this, m_pid);
         } else {
             SmallShell::getInstance().setPid(m_pid);
