@@ -835,6 +835,12 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
   string cmd_s = _trim(string(cmd_line));
   string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
 
+    for (const auto& alias : m_aliases) {
+        if (alias.first == firstWord) {
+            CreateCommand(alias.second.c_str());
+        }
+    }
+
   if (firstWord == "chprompt") {
     return new ChangePromptCommand(cmd_line);
   }
@@ -865,7 +871,6 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
   else if (firstWord.compare("unalias") == 0) {
       return new unaliasCommand(cmd_line);
   }
-
   else {
     return new ExternalCommand(cmd_line);
   }
