@@ -346,8 +346,6 @@ ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_l
 }
 
 void ListDirCommand::execute() {
-    m_files.clear();
-    m_directories.clear();
 
     DIR* dir = opendir((m_current_dir).c_str());
     if (!dir) {
