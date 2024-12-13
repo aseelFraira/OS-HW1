@@ -105,8 +105,8 @@ public:
  */
 class ChangePromptCommand : public BuiltInCommand{
 public:
-    ChangePromptCommand(const char *cmd_line);
-    virtual ~ChangePromptCommand();
+    explicit ChangePromptCommand(const char *cmd_line);
+    ~ChangePromptCommand() override;
     void execute() override;
 };
 
