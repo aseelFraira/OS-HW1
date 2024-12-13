@@ -157,7 +157,9 @@ std::string Command::m_remove_background_char(const char *cmd_line) const {
 
 ////////////////////////////////External Commands///////////////////////////////
 
-ExternalCommand::ExternalCommand(const char *cmd_line):Command(cmd_line), m_is_complex(complexity(cmd_line)) {}
+ExternalCommand::ExternalCommand(const char *cmd_line):Command(cmd_line), m_is_complex(complexity(cmd_line)) {
+    m_isBackGround = _isBackgroundComamnd(cmd_line);
+}
 
 bool ExternalCommand::complexity(const char *cmd_line)
 {
