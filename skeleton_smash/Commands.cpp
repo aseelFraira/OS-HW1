@@ -402,6 +402,8 @@ void ChangePromptCommand::execute() {
         SmallShell::getInstance().setPrompt(m_args[1]);
     }
 }
+ChangePromptCommand::~ChangePromptCommand() = default;
+
 ///////////////////////**COMMAND NUMBER 2 ---- SHOWPID**//////////////////////
 ShowPidCommand::ShowPidCommand(const char *cmd_line): BuiltInCommand(cmd_line){}
 
