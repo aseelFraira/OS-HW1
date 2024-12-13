@@ -210,7 +210,7 @@ void ExternalCommand::execute() {
 bool is_redirectional(const char *cmd_line) {
     if (cmd_line != nullptr) {
         std::string cpy = std::string(cmd_line);
-        size_t firstArrowPos= cpy.find_first_of(">");
+        size_t firstArrowPos = cpy.find_first_of(">");
         if (firstArrowPos == std::string::npos) {
             return false;
         }
@@ -243,11 +243,17 @@ m_command(),m_file_path() {
 
 void RedirectionCommand::execute() {
     SmallShell &small_shell = SmallShell::getInstance();
-    int newFD;
     int FDcpy = dup(1);
     if (FDcpy == -1) {
         perror("smash error: dup failed");
         return;
+    }
+    if (close(1) == -1) {
+        perror("smash error: close failed");
+        return;
+    }
+    if (m_redirection_1_2 == RedirectionType::two_arrows) {
+        int newFD = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
     }
 
 
