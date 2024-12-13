@@ -328,10 +328,11 @@ ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_l
     m_indent_level = indent;
 
     char* buffer = getcwd(nullptr, 0); // Allocate buffer dynamically
-    if (buffer != nullptr) {
-        m_dir_path = std::string(buffer);
-        free(buffer); // Free dynamically allocated memory
+    if (buffer == nullptr) {
+        perror("smash error: getcwd failed");
+        return;
     }
+    m_dir_path = std::string(buffer);
 
     if (m_args.size() > 2) {
         std::cerr << "smash error: listdir: too many arguments\n";
@@ -340,6 +341,8 @@ ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_l
     } else {
         m_current_dir = m_args[1];
     }
+    free(buffer); // Free dynamically allocated memory
+
 }
 
 void ListDirCommand::execute() {
