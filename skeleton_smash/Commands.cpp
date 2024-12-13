@@ -323,7 +323,7 @@ ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_l
     int len = strlen(cmd_line);
     char* cpy = (char*) malloc(sizeof(char) * (len + 1));
     strcpy(cpy, cmd_line);
-    _removeBackgroundSign(cpy);
+    _removeBackgroundSign(cpy); //TODO
     m_args = getArgs(cpy);
     m_indent_level = indent;
 
@@ -337,7 +337,7 @@ ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_l
     if (m_args.size() > 2) {
         std::cerr << "smash error: listdir: too many arguments\n";
     } else if (m_args.size() == 1) {
-        m_current_dir = buffer;
+        m_current_dir = std::string(buffer);
     } else {
         m_current_dir = m_args[1];
     }
