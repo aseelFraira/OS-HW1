@@ -484,7 +484,7 @@ void JobsCommand::execute() {
     SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
 }
 
-JobsList::JobsList() {}
+JobsList::JobsList():m_maxID(-1) {}
 
 JobsList::JobEntry::JobEntry(int jobID, pid_t pid, const std::string& command,
                              bool isStopped):
@@ -505,6 +505,7 @@ void JobsList::addJob(Command *cmd,pid_t pid ,bool isStopped) { //NOTE:HERE WE S
                                   cmd->getCommandLINE(),isStopped));
     }
 }
+JobsList::~JobsList() = default;
 
 JobsList::JobEntry *JobsList::getLastJob() { //DONE
     if(m_jobs.size() > 0){
