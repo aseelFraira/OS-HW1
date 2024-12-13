@@ -837,7 +837,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 
     for (const auto& alias : m_aliases) {
         if (alias.first == firstWord) {
-            CreateCommand(alias.second.c_str());
+            executeCommand(alias.second.c_str());
         }
     }
 
