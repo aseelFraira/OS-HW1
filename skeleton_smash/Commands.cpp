@@ -118,6 +118,10 @@ Command::Command(const char *cmd_line):m_cmd_line(std::string(cmd_line)){
         m_command =cpy.substr(0, firstSpacePos);
     }
 }
+Command::~Command() {
+
+}
+
 
 std::string Command::getCommand() {
     return m_command;
@@ -804,6 +808,11 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 
     return nullptr;
 }
+
+
+JobsList SmallShell::m_job_list;
+std::string SmallShell::m_smash_prompt = "smash";
+pid_t SmallShell::m_pid = -1;
 
 void SmallShell::executeCommand(const char *cmd_line) {
     // TODO: Add your implementation here

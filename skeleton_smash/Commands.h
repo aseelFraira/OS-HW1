@@ -374,7 +374,6 @@ private:
     SmallShell();
 
 public:
-    //{statci vector = {''}}
     static std::string m_smash_prompt;
     static pid_t m_pid;
     static JobsList m_job_list;
