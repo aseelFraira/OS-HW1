@@ -634,21 +634,24 @@ void QuitCommand::execute() {
 ///////////////////////**COMMAND NUMBER 8 ---- KILL**//////////////////////
 
 KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
-    if(m_args.size() > 3 || m_args.size() < 2){
-        std::cerr << "smash error: kill: invalid arguments\n" ;
 
-    }
-    if (!checkFormatNumber(m_args[1]) || !checkFormatNumber(m_args[2])) {
-        std::cerr << "smash error: kill: invalid arguments\n" ;
-    }
-    m_jobID = std::atoi(m_args[2].c_str());
-    m_signal_num = std::stoi(m_args[1].substr(1));
-    if(!SmallShell::getInstance().getList()->getJobById(m_jobID)){
-        std::cerr << "smash error: kill: job-id "<<m_jobID<<" does not exist\n" ;
-    }
     if(m_signal_num < 0 || m_signal_num > 31){
         perror("smash error: kill failed");
     }
+
+    if(m_args.size() > 3 || m_args.size() < 2){
+        std::cerr << "smash error: kill: invalid arguments\n" ;
+    }
+    else if (!checkFormatNumber(m_args[1]) || !checkFormatNumber(m_args[2])) {
+        std::cerr << "smash error: kill: invalid arguments\n" ;
+    }else {
+        m_jobID = std::atoi(m_args[2].c_str());
+        m_signal_num = std::stoi(m_args[1].substr(1));
+        if(!SmallShell::getInstance().getList()->getJobById(m_jobID)){
+            std::cerr << "smash error: kill: job-id "<<m_jobID<<" does not exist\n" ;
+        }
+    }
+
 }
 
 void KillCommand::execute() {
