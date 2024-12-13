@@ -623,14 +623,15 @@ QuitCommand::QuitCommand(const char *cmd_line): BuiltInCommand(cmd_line) {
 }
 
 void QuitCommand::execute() {
-    if(m_args.size() > 2 && m_args[1] == "kill"){
+    if(m_args.size() == 2 && m_args[1] == "kill"){
         JobsList &j = SmallShell::getInstance().m_job_list;
         std::cout << "sending SIGKILL signal to" << j.getSize() << "jobs" <<"\n";
         if(j.getSize() > 0 ) {
             j.killAllJobs();
         }
+        exit(0); //TODO: SHOULD WE USE EXIST?!
+
     }
-    exit(0); //TODO: SHOULD WE USE EXIST?!
 }
 
 ///////////////////////**COMMAND NUMBER 8 ---- KILL**//////////////////////
@@ -935,7 +936,7 @@ JobsList *SmallShell::getList() const {
 bool SmallShell::removeAlias(const std::string& toRemove) {
     for (auto it = m_aliases.begin(); it != m_aliases.end(); ) {
         if (it->first == toRemove) {
-            it = m_aliases.erase(it); // Erase and update iterator
+            m_aliases.erase(it); // Erase and update iterator
             return true;
         }
         ++it; // Move to the next element
