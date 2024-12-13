@@ -336,7 +336,7 @@ ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_l
     if (m_args.size() > 2) {
         std::cerr << "smash error: listdir: too many arguments\n";
     } else if (m_args.size() == 1) {
-        m_current_dir = "";
+        m_current_dir = buffer;
     } else {
         m_current_dir = m_args[1];
     }
