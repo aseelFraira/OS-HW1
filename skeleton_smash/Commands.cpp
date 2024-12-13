@@ -381,7 +381,7 @@ void ListDirCommand::execute() {
     for (const auto& dir : m_directories) {
         std::cout << std::string(m_indent_level, '\t') << dir << std::endl;
 
-        ListDirCommand recursive((m_current_dir + '/' + dir).c_str(), m_indent_level + 1);
+        ListDirCommand recursive(("listdir " + m_current_dir + '/' + dir).c_str(), m_indent_level + 1);
         recursive.execute();
     }
 
