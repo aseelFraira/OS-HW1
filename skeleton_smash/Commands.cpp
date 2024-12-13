@@ -443,7 +443,7 @@ void ChangeDirCommand::execute() {
     if(getcwd(buffer,COMMAND_MAX_LENGTH + 1) == nullptr){
         perror("smash error: getcwd failed");
     }
-    else if(m_args[1] == "-"){ // in case of '-': returning to prev dir
+    if(m_args[1] == "-"){ // in case of '-': returning to prev dir
         if(chdir(m_prev_dir.c_str()) == 0) { // if chdir sucesssed
             m_prev_dir = buffer;
         }else{ //if chdir fails
@@ -634,12 +634,12 @@ void QuitCommand::execute() {
 ///////////////////////**COMMAND NUMBER 8 ---- KILL**//////////////////////
 
 KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
-    if (!checkFormatNumber(m_args[1]) || !checkFormatNumber(m_args[2])) {
-        std::cerr << "smash error: kill: invalid arguments\n" ;
-    }
     if(m_args.size() > 3 || m_args.size() < 2){
         std::cerr << "smash error: kill: invalid arguments\n" ;
 
+    }
+    if (!checkFormatNumber(m_args[1]) || !checkFormatNumber(m_args[2])) {
+        std::cerr << "smash error: kill: invalid arguments\n" ;
     }
     m_jobID = std::atoi(m_args[2].c_str());
     m_signal_num = std::stoi(m_args[1].substr(1));

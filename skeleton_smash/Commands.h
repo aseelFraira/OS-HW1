@@ -267,7 +267,6 @@ public:
 class KillCommand : public BuiltInCommand {
     int m_jobID;
     int m_signal_num;
-    // TODO: Add your data members
 public:
     KillCommand(const char *cmd_line);
 
