@@ -11,6 +11,8 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <algorithm>
+#include <regex>
+
 
 
 
@@ -660,7 +662,7 @@ KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
         m_jobID = std::atoi(m_args[2].c_str());
         m_signal_num = std::stoi(m_args[1].substr(1));
         if (m_signal_num < 0 || m_signal_num > 31) {
-            errno = 0;
+            errno = EINVAL;
             perror("smash error: kill failed");
             return;
         }
@@ -686,47 +688,74 @@ void KillCommand::execute() {
     }
 }
 ///////////////////////**COMMAND NUMBER 9 ---- ALIAS**//////////////////////
+bool is_special(const std::string& name) {
+    return name == "whoami"  || name == "listdir"
+    || name == "netinfo";
+}
+bool is_builtin(const std::string& name) {
+    return name == "whoami"  || name == "listdir"
+    || name == "netinfo";
+}
+
+aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
 
 
-aliasCommand::aliasCommand(const char *cmd_line): BuiltInCommand(cmd_line) {
-    std::string name, command;
-    std::string input = std::string(cmd_line);
-    // Find the position of '='
-    size_t equal_pos = input.find('=');
-    if(equal_pos == -1){
-        std::cerr << "alias: invalid alias format \n";
-    }
-    if (equal_pos != std::string::npos) {
-        // Extract the name
-        name = input.substr(0, equal_pos);
+    // Define the regex pattern for alias validation
 
-        // Extract the command (excluding quotes)
+    if (m_args.size() != 1) {
+        std::string pattern = R"(^(alias [a-zA-Z0-9_]+='[^']*')$)";
+        std::regex regex_pattern(pattern);
+
+        // Convert cmd_line to a string for processing
+        std::string input = std::string(cmd_line);
+
+        // Validate input format using regex
+        if (!std::regex_match(input, regex_pattern)) {
+            std::cerr << "smash error: alias: invalid alias format\n";
+            return;
+        }
+
+        // Find the position of '='
+        size_t equal_pos = input.find('=');
+        if (equal_pos == std::string::npos) { // Check if '=' is missing
+            std::cerr << "smash error: alias: invalid alias format\n";
+            return;
+        }
+
+        // Extract alias name (remove "alias " prefix)
+        std::string name = input.substr(6, equal_pos - 6);
+        name = std::string(name.begin(), name.end()); // Optional: Trim whitespace if needed
+
+        // Extract command between single quotes
         size_t start_quote = input.find('\'', equal_pos);
         size_t end_quote = input.rfind('\'');
-        if (start_quote != std::string::npos &&
-            end_quote != std::string::npos && start_quote < end_quote) {
-            command = input.substr(start_quote + 1,
-                                   end_quote - start_quote - 1);
-            }
-    }
-    for (size_t i = 0; i < input.length(); ++i) {
-        if (!(input[i] >= 'a' && input[i] < 'z') ||
-            !(input[i] >= 'A' && input[i] < 'Z')
-            || !(input[i] >= '0' && input[i] <= '9') || !(input[i] != '_')) {
-            std::cerr << "smash error: alias: invalid alias format\n";
+        std::string command;
 
-            }
-    }
-    for (const auto &p : SmallShell::getInstance().m_aliases){
-        if (p.first == name) {
+        if (start_quote != std::string::npos && end_quote != std::string::npos && start_quote < end_quote) {
+            command = input.substr(start_quote + 1, end_quote - start_quote - 1);
+        } else {
             std::cerr << "smash error: alias: invalid alias format\n";
+            return;
         }
-    }
-    m_A_command = command;
-    m_name = name;
-    // TODO :
 
+        // Check for duplicate alias names in the aliases map
+        for (const auto &p : SmallShell::getInstance().m_aliases) {
+            if (p.first == name) {
+            std::cerr << "smash error: alias:" <<name<< "already exists or is a reserved command\n";
+                return;
+            }
+        }
+        if (is_special(name)||is_builtin(name)) {
+            std::cerr << "smash error: alias: " <<name<< " already exists or is a reserved command\n";
+            return;
+        }
+
+        // Assign values to class members
+        m_A_command = command;
+        m_name = name;
+    }
 }
+
 
 void aliasCommand::execute() {
     if(m_args.size() == 1){
