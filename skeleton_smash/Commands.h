@@ -301,8 +301,15 @@ public:
 };
 
 class ListDirCommand : public Command {
+    std::vector<std::string> m_directories;
+    std::vector<std::string> m_files;
+    std::vector<std::string> m_args;
+    int m_indent_level;
+    std::string m_dir_path;
+    std::string m_current_dir;
+
 public:
-    ListDirCommand(const char *cmd_line);
+    ListDirCommand(const char *cmd_line,int indent);
 
     virtual ~ListDirCommand() {
     }

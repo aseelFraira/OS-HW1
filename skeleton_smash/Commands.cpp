@@ -6,6 +6,11 @@
 #include <sys/wait.h>
 #include <iomanip>
 #include "Commands.h"
+#include <sys/stat.h>
+#include <dirent.h>
+
+
+#include <algorithm>
 
 using namespace std;
 
@@ -228,7 +233,6 @@ RedirectionCommand::RedirectionType RedirectionCommand::getRedirectionType(const
     return RedirectionType::one_arrow;
 }
 
-//CONST'
 RedirectionCommand::RedirectionCommand(const char *cmd_line):Command(cmd_line) ,
 m_command(),m_file_path() {
     if (!is_redirectional(cmd_line))
@@ -302,8 +306,76 @@ void RedirectionCommand::execute() {
     }
 }
 
+///////////////////////**COMMAND NUMBER 3 ---- listdir**///////////////////
+ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_line) {
+    int len = strlen(cmd_line);
+    char* cpy = (char*) malloc(sizeof(char) * (len + 1));
+    strcpy(cpy, cmd_line);
+    _removeBackgroundSign(cpy);
+    m_args = getArgs(cpy);
+    m_indent_level = indent;
 
+    char* buffer = getcwd(nullptr, 0); // Allocate buffer dynamically
+    if (buffer != nullptr) {
+        m_dir_path = std::string(buffer);
+        free(buffer); // Free dynamically allocated memory
+    }
 
+    if (m_args.size() > 2) {
+        std::cerr << "smash error: listdir: too many arguments\n";
+    } else if (m_args.size() == 1) {
+        m_current_dir = "";
+    } else {
+        m_current_dir = m_args[1];
+    }
+}
+
+void ListDirCommand::execute() {
+    m_files.clear();
+    m_directories.clear();
+
+    DIR* dir = opendir(m_current_dir.c_str());
+    if (!dir) {
+        perror("opendir");
+        return;
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        std::string name(entry->d_name);
+        if (name == "." || name == "..") {
+            continue;
+        }
+
+        std::string path = m_current_dir + '/' + name;
+        struct stat path_stat;
+        if (stat(path.c_str(), &path_stat) == -1) {
+            perror("stat");
+            continue;
+        }
+
+        if (S_ISDIR(path_stat.st_mode)) {
+            m_directories.push_back(name);
+        } else {
+            m_files.push_back(name);
+        }
+    }
+    closedir(dir);
+
+    std::sort(m_directories.begin(), m_directories.end());
+    std::sort(m_files.begin(), m_files.end());
+
+    for (const auto& dir : m_directories) {
+        std::cout << std::string(m_indent_level, '\t') << dir << std::endl;
+
+        ListDirCommand recursive((m_dir_path + '/' + dir).c_str(), m_indent_level + 1);
+        recursive.execute();
+    }
+
+    for (const auto& file : m_files) {
+        std::cout << std::string(m_indent_level, '\t') << file << std::endl;
+    }
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
