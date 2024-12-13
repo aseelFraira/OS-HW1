@@ -453,11 +453,15 @@ void ChangeDirCommand::execute() {
     else if(m_args[1] == ".."){ // in case returning to father ...
         if(chdir(getFatherDir(buffer).c_str()) == -1){ //in case of failiure
             perror("smash error: chdir failed");
+        }else {
+            m_prev_dir = buffer;
         }
     }
     else{
-        if(chdir(buffer) == -1){
+        if(chdir(m_args[1].c_str()) == -1){
             perror("smash error: chdir failed");
+        }else {
+            m_prev_dir = buffer;
         }
     }
 }
