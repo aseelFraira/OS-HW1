@@ -798,16 +798,16 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
       return new ShowPidCommand(cmd_line);
   }
   else if (firstWord.compare("quit") == 0) {
-      return new ShowPidCommand(cmd_line);
+      return new QuitCommand(cmd_line);
   }
   else if (firstWord.compare("kill") == 0) {
-      return new ShowPidCommand(cmd_line);
+      return new KillCommand(cmd_line);
   }
   else if (firstWord.compare("alias") == 0) {
-      return new ShowPidCommand(cmd_line);
+      return new aliasCommand(cmd_line);
   }
   else if (firstWord.compare("unalias") == 0) {
-      return new ShowPidCommand(cmd_line);
+      return new unaliasCommand(cmd_line);
   }
 
   else {
