@@ -693,8 +693,10 @@ bool is_special(const std::string& name) {
     || name == "netinfo";
 }
 bool is_builtin(const std::string& name) {
-    return name == "whoami"  || name == "listdir"
-    || name == "netinfo";
+    return name == "pwd"  || name == "cd"
+    || name == "alias" || name == "chprompt" || name == "showpid"
+    || name == "fg" || name == "jobs" || name == "kill" || name == "quit"
+    || name == "unalias";
 }
 
 aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
