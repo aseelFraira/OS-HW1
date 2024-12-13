@@ -209,7 +209,7 @@ public:
         JobEntry(int jobID,  pid_t pid, const std::string& command,bool isStopped);
     };
     std::vector<JobEntry> m_jobs;
-    int m_maxID;
+     int m_maxID;
 
     // TODO: Add your data members
 public:
