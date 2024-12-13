@@ -623,14 +623,12 @@ QuitCommand::QuitCommand(const char *cmd_line): BuiltInCommand(cmd_line) {
 }
 
 void QuitCommand::execute() {
-    if(m_args.size() >= 2 && m_args[1] == "kill"){
+    if(m_args.size() >= 2 && m_args[1] == "kill" ){
         JobsList &j = SmallShell::getInstance().m_job_list;
         std::cout << "sending SIGKILL signal to" << j.getSize() << "jobs" <<"\n";
         if(j.getSize() > 0 ) {
             j.killAllJobs();
         }
-        delete this;
-        exit(0);
     }
 }
 
@@ -851,8 +849,6 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
             args = ""; // No args found
         }
     }
-
-
 
     for (const auto& alias : m_aliases) {
         if (alias.first == firstWord) {
