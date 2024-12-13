@@ -889,6 +889,8 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
   }
   else if (firstWord.compare("unalias") == 0) {
       return new unaliasCommand(cmd_line);
+  }else if (firstWord.compare("listdir") == 0) {
+      return new ListDirCommand(cmd_line,1);
   }
   else {
     return new ExternalCommand(cmd_line);
