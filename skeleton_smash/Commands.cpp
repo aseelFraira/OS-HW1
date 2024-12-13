@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include <string.h>
+#include <string>
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -73,7 +73,7 @@ void _removeBackgroundSign(char *cmd_line) {
     // truncate the command line string up to the last non-space character
     cmd_line[str.find_last_not_of(WHITESPACE, idx) + 1] = 0;
 }
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////MY HELPER FUNCTIONS//////////////////////////////////
 std::vector<std::string> getArgs(const char *cmd_line) {
     std::vector<std::string> argsVec;
     char **args = (char **) malloc(COMMAND_MAX_ARGS * sizeof(char *));
@@ -123,8 +123,141 @@ BuiltInCommand::BuiltInCommand(const char *cmd_line): Command(cmd_line){
     m_args = getArgs(cpy);
 }
 
+// should check this
+std::string Command::m_remove_background_char(const char *cmd_line) const {
 
-// TODO: Add your implementation for classes in Commands.h
+    char *cmd_line_copy = new char[strlen(cmd_line) + 1];
+    strcpy(cmd_line_copy, cmd_line);
+    _removeBackgroundSign(cmd_line_copy);
+
+    std::string modified_cmd_line(cmd_line_copy);
+    delete[] cmd_line_copy;
+
+    return modified_cmd_line;
+}
+
+////////////////////////////////External Commands///////////////////////////////
+
+ExternalCommand::ExternalCommand(const char *cmd_line):Command(cmd_line), m_is_complex(complexity(cmd_line)) {}
+
+bool ExternalCommand::complexity(const char *cmd_line)
+{
+    for (const char *ptr = cmd_line; *ptr != '\0'; ++ptr) {
+        if (*ptr == '*' || *ptr == '?') {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ExternalCommand::execute() {
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        perror("smash error: fork failed");
+        return;
+    }
+    if (pid == 0) {
+        if (setpgrp() == -1) {
+            perror("smash error: setpgrp failed");
+            _exit(1);
+        }
+        if (m_is_complex) { // Complex command = True
+            //send to bash to excute
+            std::string trimmed_cmd = _trim(Command::m_remove_background_char(getCommandLINE().c_str()));
+            const char *command_line = trimmed_cmd.c_str();
+            if (execlp("/bin/bash", "/bin/bash", "-c", command_line, nullptr) == -1) {
+                perror("smash error: execlp failed");
+                _exit(1);
+            }
+        }else { // excuting directly
+            char *args[COMMAND_MAX_ARGS + 1] = {0};
+            char trimmed_cmd_line[COMMAND_MAX_LENGTH + 1];
+
+            strncpy(trimmed_cmd_line, getCommandLINE().c_str(), COMMAND_MAX_LENGTH);
+            _removeBackgroundSign(trimmed_cmd_line);
+            _parseCommandLine(_trim(trimmed_cmd_line).c_str(), args);
+
+            if (execvp(args[0], args) == -1) {
+                perror("smash error: execvp failed");
+            }
+
+            for (int i = 0; args[i] != nullptr; ++i) {
+                free(args[i]);
+            }
+            _exit(1);
+        }
+    }
+    else {
+        m_pid = pid;
+        if (m_isBackGround()) {
+            SmallShell::getInstance().getList()->addJob(this, m_pid);
+        } else {
+            SmallShell::getInstance().setPid(m_pid);
+
+            if (waitpid(m_pid, nullptr, WUNTRACED) == -1) {
+                perror("smash error: waitpid failed");
+            }
+            SmallShell::getInstance().setPid(-1);
+        }
+    }
+}
+////////////////////////Special Commands///////////////////////////////////////
+
+///////////////////////**COMMAND NUMBER 1 ---- REDIRECTION**///////////////////
+
+// should check cpy
+bool is_redirectional(const char *cmd_line) {
+    if (cmd_line != nullptr) {
+        std::string cpy = std::string(cmd_line);
+        size_t firstArrowPos= cpy.find_first_of(">");
+        if (firstArrowPos == std::string::npos) {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+RedirectionCommand::RedirectionType RedirectionCommand::getRedirectionType(const char *cmd_line) {
+    std::string  cmd_line_copy(cmd_line);
+    unsigned int arrow_index = cmd_line_copy.find_first_of(">");
+    if (cmd_line_copy[arrow_index + 1] == '>') {
+        return RedirectionType::two_arrows;
+    } //command is for sure redirectional
+    return RedirectionType::one_arrow;
+}
+
+//CONST'
+RedirectionCommand::RedirectionCommand(const char *cmd_line):Command(cmd_line) ,
+m_command(),m_file_path() {
+    if (!is_redirectional(cmd_line))
+    {
+        throw std::logic_error("wrong name");
+    }
+    m_redirection_1_2 = getRedirectionType(cmd_line);
+    std::string cpy_cmd_line = std::string(cmd_line);
+    m_command = _trim(cpy_cmd_line.substr(0, cpy_cmd_line.find_first_of(">")).c_str());
+    m_file_path = _trim(cpy_cmd_line.substr(cpy_cmd_line.find_last_of(">") + 1));
+}
+
+void RedirectionCommand::execute() {
+    SmallShell &small_shell = SmallShell::getInstance();
+    int newFD;
+    int FDcpy = dup(1);
+    if (FDcpy == -1) {
+        perror("smash error: dup failed");
+        return;
+    }
+
+
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////**COMMAND NUMBER 1 ---- CHPRMOPT**//////////////////////
 ChangePromptCommand::ChangePromptCommand(const char *cmd_line): BuiltInCommand(cmd_line) {} //ctor
