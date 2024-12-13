@@ -629,9 +629,9 @@ void QuitCommand::execute() {
         if(j.getSize() > 0 ) {
             j.killAllJobs();
         }
-        delete this;
-        exit(0);
     }
+    delete this;
+    exit(0);
 }
 
 ///////////////////////**COMMAND NUMBER 8 ---- KILL**//////////////////////
