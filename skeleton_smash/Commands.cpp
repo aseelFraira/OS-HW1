@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -8,9 +9,11 @@
 #include "Commands.h"
 #include <sys/stat.h>
 #include <dirent.h>
-
-
+#include <fcntl.h>
 #include <algorithm>
+
+
+
 
 using namespace std;
 
