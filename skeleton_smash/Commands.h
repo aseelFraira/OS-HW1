@@ -105,8 +105,8 @@ public:
  */
 class ChangePromptCommand : public BuiltInCommand{
 public:
-    ChangePromptCommand(const char *cmd_line);
-    virtual ~ChangePromptCommand();
+    explicit ChangePromptCommand(const char *cmd_line);
+    ~ChangePromptCommand() override;
     void execute() override;
 };
 
@@ -184,6 +184,7 @@ class JobsList;
  */
 class QuitCommand : public BuiltInCommand {
     // TODO: Add your data members public:
+public:
     QuitCommand(const char *cmd_line);
 
     virtual ~QuitCommand() {
@@ -208,7 +209,7 @@ public:
         JobEntry(int jobID,  pid_t pid, const std::string& command,bool isStopped);
     };
     std::vector<JobEntry> m_jobs;
-    int m_maxID;
+     int m_maxID;
 
     // TODO: Add your data members
 public:
@@ -266,7 +267,6 @@ public:
 class KillCommand : public BuiltInCommand {
     int m_jobID;
     int m_signal_num;
-    // TODO: Add your data members
 public:
     KillCommand(const char *cmd_line);
 
@@ -301,8 +301,15 @@ public:
 };
 
 class ListDirCommand : public Command {
+    std::vector<std::string> m_directories;
+    std::vector<std::string> m_files;
+    std::vector<std::string> m_args;
+    int m_indent_level;
+    std::string m_dir_path;
+    std::string m_current_dir;
+
 public:
-    ListDirCommand(const char *cmd_line);
+    ListDirCommand(const char *cmd_line,int indent);
 
     virtual ~ListDirCommand() {
     }
@@ -311,8 +318,12 @@ public:
 };
 
 class WhoAmICommand : public Command {
+
+
 public:
     WhoAmICommand(const char *cmd_line);
+
+
 
     virtual ~WhoAmICommand() {
     }
@@ -367,9 +378,8 @@ private:
     SmallShell();
 
 public:
-    //{statci vector = {''}}
     static std::string m_smash_prompt;
-    static pid_t m_pid;
+//    static pid_t m_pid;
     static JobsList m_job_list;
     pid_t m_current_process;
 
@@ -379,11 +389,13 @@ public:
    // std::string m_old_cmd;
 
     void setPrompt(const std::string& newPrompt);
-    void setPid(pid_t pid);
-    pid_t getPid() const;
+   // void setPid(pid_t pid);
+  //  pid_t getPid() const;
     JobsList* getList() const;
     bool removeAlias(const std::string& toRemove);
-
+    void setCurrFGPID(pid_t pid) {
+        m_current_process = pid;
+    }
     Command *CreateCommand(const char *cmd_line);
 
     SmallShell(SmallShell const &) = delete; // disable copy ctor
