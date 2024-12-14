@@ -671,7 +671,7 @@ int JobsList::getSize() const {
 ///////////////////////**COMMAND NUMBER 6 ---- FG**//////////////////////
 ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
     JobsList* lst = SmallShell::getInstance().getList();
-    std::cout<< "debug:\n";
+
     if (lst->getSize() == 0 && m_args.size() == 1) {
         std::cerr << "smash error: fg: jobs list is empty\n";
     }else if (m_args.size() > 2) { //if we have more than one argument
