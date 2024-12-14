@@ -180,7 +180,7 @@ void ExternalCommand::execute() {
     if (pid == 0) {
         if (setpgrp() == -1) {
             perror("smash error: setpgrp failed");
-            _exit(1);
+            return;
         }
 
         if (m_is_complex) { // Complex command = True
@@ -189,7 +189,7 @@ void ExternalCommand::execute() {
             const char *command_line = trimmed_cmd.c_str();
             if (execlp("/bin/bash", "/bin/bash", "-c", command_line, nullptr) == -1) {
                 perror("smash error: execlp failed");
-                _exit(1);
+                return;
             }
         }else { // excuting directly
             char *args[COMMAND_MAX_ARGS + 1] = {0};
@@ -210,10 +210,10 @@ void ExternalCommand::execute() {
         }
     }
     else {
+        m_pid = pid;
         if (m_isBackGround) {
             SmallShell::getInstance().getList()->addJob(this, m_pid);
         }else {
-            m_pid = pid;
             SmallShell::getInstance().setPid(m_pid);
             if (waitpid(m_pid, nullptr, WUNTRACED) == -1) {
                 perror("smash error: waitpid failed");
