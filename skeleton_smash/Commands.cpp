@@ -700,9 +700,9 @@ void ForegroundCommand::execute() {
     JobsList::JobEntry* j =lst->getJobById(id); //MA
     SmallShell::getInstance().setCurrFGPID(j->getJobPid());
 
-    std::cout<< j->getCMD() << " " << SmallShell::getInstance().m_current_process<<"\n";
-
-    lst->removeJobById(j->getJobID());
+    std::cout<< j->getCMD() << " " << j->getJobPid()<<"\n";
+    std::cout << "debug = " << j->getJobPid()<<"\n";
+    SmallShell::getInstance().m_job_list.removeJobById(j->getJobID());
 
     if(waitpid(j->getJobPid(), nullptr,WUNTRACED) == -1){
         perror("smash error: waitpid failed");
