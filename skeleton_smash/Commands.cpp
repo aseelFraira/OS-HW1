@@ -1006,6 +1006,7 @@ void SmallShell::executeCommand(const char *cmd_line) {
         }
         delete command;
     }
+    setCurrFGPID(-1);
     // TODO: Add your implementation here
     // for example:
     // Command* cmd = CreateCommand(cmd_line);
