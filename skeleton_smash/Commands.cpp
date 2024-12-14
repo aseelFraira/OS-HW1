@@ -468,6 +468,7 @@ void WhoAmICommand::execute() {
 
         // Check if the UID matches
         if (file_uid == uid) {
+            // Display username and home directory
             std::cout << username << " " << home_dir << std::endl;
             return;
         }
@@ -476,6 +477,7 @@ void WhoAmICommand::execute() {
     // If we reach here, no matching UID was found
     std::cerr << "Error: User not found in /etc/passwd." << std::endl;
 }
+
 
 
 //////////////////////////////////////////////////////////////////////////////
