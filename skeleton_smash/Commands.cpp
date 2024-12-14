@@ -697,7 +697,7 @@ void ForegroundCommand::execute() {
     JobsList::JobEntry* j =lst->getJobById(id); //MA
     SmallShell::getInstance().setCurrFGPID(j->getJobPid());
 
-    std::cout<< j->getCMD() << " " << SmallShell::getInstance().getPid()<<"\n";
+    std::cout<< j->getCMD() << " " << SmallShell::getInstance().m_current_process<<"\n";
     SmallShell::getInstance().m_job_list.removeJobById(j->getJobID());
 
     if(waitpid(j->getJobPid(), nullptr,WUNTRACED) == -1){
