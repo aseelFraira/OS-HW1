@@ -653,6 +653,7 @@ void JobsList::killAllJobs() {
             perror("smash error: kill failed");
         }
     }
+
     m_jobs.clear();
 }
 
@@ -752,8 +753,7 @@ KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
         m_signal_num = std::stoi(m_args[1].substr(1));
         if (m_signal_num < 0 || m_signal_num > 31) {
             errno = EINVAL;
-            perror("smash error: kill failed");
-            return;
+            std::cerr <<"smash error: kill failed\n";
         }
         if(!SmallShell::getInstance().getList()->getJobById(m_jobID)){
             std::cerr << "smash error: kill: job-id "<<m_jobID<<" does not exist\n" ;
