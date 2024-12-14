@@ -427,6 +427,7 @@ void WhoAmICommand::execute() {
         std::cerr << "Error: Failed to read /etc/passwd file." << std::endl;
         return;
     }
+    std::cout << "Fields: " << std::endl;
 
     // Parse the /etc/passwd file line by line
     size_t start = 0;
@@ -444,7 +445,6 @@ void WhoAmICommand::execute() {
         size_t field_start = 0, field_end;
         std::string fields[7];
         int field_index = 0;
-        std::cout << "Fields: " << std::endl;
         while (field_index < 7 && (field_end = line.find(':', field_start)) != std::string::npos) {
             fields[field_index] = line.substr(field_start, field_end - field_start);
             field_start = field_end + 1;
