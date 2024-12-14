@@ -553,13 +553,10 @@ JobsList::JobEntry *JobsList::getJobById(int jobId){
 
 void JobsList::removeJobById(int jobId){
 
-    for (std::vector<JobEntry>::iterator it = m_jobs.begin(); it != m_jobs.end(); ){
+    for (std::vector<JobEntry>::iterator it = m_jobs.begin(); it != m_jobs.end(); ++it){
         if (it->getJobID() == jobId){
             m_jobs.erase(it);
             return;
-        } else
-        {
-            ++it;
         }
     }
 
@@ -584,7 +581,6 @@ void JobsList::killAllJobs() {
 }
 
 void JobsList::printJobsList() {
-    removeFinishedJobs();
     for (JobsList::JobEntry &job : m_jobs)
     {
         std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
