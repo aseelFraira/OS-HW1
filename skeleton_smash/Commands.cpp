@@ -459,7 +459,7 @@ void WhoAmICommand::execute() {
         if (field_index > 2 && std::stoi(fields[2]) == uid) {
             // Extract username and home directory
             std::string username = fields[0];
-            std::string home_dir = (field_index > 5) ? fields[5] : "Unknown";
+            std::string home_dir = (field_index >= 5) ? fields[5] : "Unknown";
 
             // Print the username and home directory
             std::cout << username << " " << home_dir << std::endl;
