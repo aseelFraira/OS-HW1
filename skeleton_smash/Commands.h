@@ -389,7 +389,9 @@ public:
     pid_t getPid() const;
     JobsList* getList() const;
     bool removeAlias(const std::string& toRemove);
-
+    void setCurrFGPID(pid_t pid) {
+        m_current_process = pid;
+    }
     Command *CreateCommand(const char *cmd_line);
 
     SmallShell(SmallShell const &) = delete; // disable copy ctor

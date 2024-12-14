@@ -219,7 +219,7 @@ void ExternalCommand::execute() {
             if (waitpid(m_pid, nullptr, WUNTRACED) == -1) {
                 perror("smash error: waitpid failed");
             }
-            SmallShell::getInstance().m_current_process(-1);
+            SmallShell::getInstance().setCurrFGPID(-1);
         }
     }
 }
