@@ -379,7 +379,7 @@ private:
 
 public:
     static std::string m_smash_prompt;
-    static pid_t m_pid;
+//    static pid_t m_pid;
     static JobsList m_job_list;
     pid_t m_current_process;
 

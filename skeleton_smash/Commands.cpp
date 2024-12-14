@@ -994,7 +994,6 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 
 JobsList SmallShell::m_job_list;
 std::string SmallShell::m_smash_prompt = "smash";
-pid_t SmallShell::m_pid = -1;
 
 void SmallShell::executeCommand(const char *cmd_line) {
     m_job_list.removeFinishedJobs();
@@ -1014,13 +1013,6 @@ void SmallShell::executeCommand(const char *cmd_line) {
     // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
 
-pid_t SmallShell::getPid() const {
-    return m_pid;
-}
-
-void SmallShell::setPid(pid_t pid) {
-    m_pid = pid;
-}
 
 JobsList *SmallShell::getList() const {
     return &(m_job_list);
