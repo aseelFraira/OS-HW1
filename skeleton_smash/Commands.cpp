@@ -774,6 +774,7 @@ void KillCommand::execute() {
             return;
         }
         std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
+        list->removeJobById(m_jobID);
     }
 }
 ///////////////////////**COMMAND NUMBER 9 ---- ALIAS**//////////////////////
