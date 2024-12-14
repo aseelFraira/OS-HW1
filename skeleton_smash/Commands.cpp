@@ -416,7 +416,7 @@ void WhoAmICommand::execute() {
 
     // Read the file into the buffer
     while ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
-        buffer[bytes_read] = '\0';
+        buffer[bytes_read] = '\0';  // Null-terminate the buffer
         passwd_data += buffer;
     }
 
@@ -438,37 +438,27 @@ void WhoAmICommand::execute() {
         std::string line = passwd_data.substr(start, end - start);
         start = end + 1;
 
-        // Parse the line (format: username:x:uid:gid:info:home:shell)
-        size_t colon_pos = 0;
-        size_t field_count = 0;
-        std::string username, home_dir;
-        int file_uid = -1;
+        // Split the line into fields (format: username:x:uid:gid:info:home:shell)
+        size_t field_start = 0, field_end;
+        std::string fields[7];
+        int field_index = 0;
 
-        for (size_t i = 0; i <= line.size(); ++i) {
-            if (i == line.size() || line[i] == ':') {
-                std::string field = line.substr(colon_pos, i - colon_pos);
-                colon_pos = i + 1;
-
-                switch (field_count) {
-                    case 0:
-                        username = field; // Username
-                        break;
-                    case 2:
-                        file_uid = std::stoi(field); // UID
-                        break;
-                    case 5:
-                        home_dir = field; // Home directory
-                        break;
-                    default:
-                        break;
-                }
-                ++field_count;
-            }
+        while (field_index < 7 && (field_end = line.find(':', field_start)) != std::string::npos) {
+            fields[field_index] = line.substr(field_start, field_end - field_start);
+            field_start = field_end + 1;
+            field_index++;
+        }
+        // Handle the last field (if there's no trailing colon)
+        if (field_index < 7 && field_start < line.size()) {
+            fields[field_index] = line.substr(field_start);
         }
 
         // Check if the UID matches
-        if (file_uid == uid) {
-            // Display username and home directory
+        if (field_index > 2 && std::stoi(fields[2]) == uid) {
+            std::string username = fields[0];
+            std::string home_dir = fields[5]; // Home directory field
+
+            // Print the username and home directory
             std::cout << username << " " << home_dir << std::endl;
             return;
         }
