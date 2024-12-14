@@ -511,7 +511,7 @@ int JobsList::JobEntry::getJobID() const {
 
 void JobsList::addJob(Command *cmd,pid_t pid ,bool isStopped) { //NOTE:HERE WE SHOULD SEND THE PID!!!
     if(cmd) { //AVOID SEG FAULT
-       // removeFinishedJobs();
+        removeFinishedJobs();
         m_maxID++;
         m_jobs.push_back(JobEntry(m_maxID, pid,
                                   cmd->getCommandLINE(),isStopped));
