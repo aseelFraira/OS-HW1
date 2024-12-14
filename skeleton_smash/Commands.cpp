@@ -673,7 +673,6 @@ int JobsList::getSize() const {
 ///////////////////////**COMMAND NUMBER 6 ---- FG**//////////////////////
 ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
     JobsList* lst = SmallShell::getInstance().getList();
-    std::cout << "Entering fg cmd\n";
 
     if (lst->getSize() == 0 && m_args.size() == 1) {
         std::cerr << "smash error: fg: jobs list is empty\n";
@@ -1006,8 +1005,11 @@ std::string SmallShell::m_smash_prompt = "smash";
 void SmallShell::executeCommand(const char *cmd_line) {
     m_job_list.removeFinishedJobs();
     Command *command = CreateCommand(cmd_line);
+    std::cout << "Entering exe cmd\n";
+
     if (command) {
         try {
+
             command->execute();
         }catch (std::exception &e) {
 
