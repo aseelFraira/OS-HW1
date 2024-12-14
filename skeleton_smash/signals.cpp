@@ -9,15 +9,15 @@ void ctrlCHandler(int sig_num)
 {
     std::cout << "smash: got ctrl-C\n";
     SmallShell &smash = SmallShell::getInstance();
-    if (smash.getCurrForegroundPID() != -1)
+    if (smash.m_current_process != -1)
     {
-        if (kill(smash.getCurrForegroundPID(), SIGKILL) == -1)
+        if (kill(smash.m_current_process(), SIGKILL) == -1)
         {
             perror("smash error: kill failed");
             return;
         }
-        cout << "smash: process " << smash.getCurrForegroundPID() << " was killed\n";
-        smash.setCurrForegroundPID(-1);
+        cout << "smash: process " << smash.m_current_process() << " was killed\n";
+        smash.setCurrFGPID(-1);
     }
 }
 
