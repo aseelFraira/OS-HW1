@@ -510,9 +510,12 @@ int JobsList::JobEntry::getJobID() const {
 }
 
 void JobsList::addJob(Command *cmd,pid_t pid ,bool isStopped) { //NOTE:HERE WE SHOULD SEND THE PID!!!
+    int id = 0;
     if(cmd) { //AVOID SEG FAULT
-        m_maxID++;
-        m_jobs.push_back(JobEntry(m_maxID, pid,
+        if (getLastJob()) {
+            id = getLastJob()->getJobID();
+        }
+        m_jobs.push_back(JobEntry(id + 1, pid,
                                   cmd->getCommandLINE(),isStopped));
     }
 }
@@ -554,7 +557,6 @@ void JobsList::removeJobById(int jobId){
             return;
         }
     }
-
 }
 
 std::string JobsList::JobEntry::getCMD() const {
