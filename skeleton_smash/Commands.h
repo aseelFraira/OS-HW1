@@ -389,8 +389,8 @@ public:
    // std::string m_old_cmd;
 
     void setPrompt(const std::string& newPrompt);
-    void setPid(pid_t pid);
-    pid_t getPid() const;
+   // void setPid(pid_t pid);
+  //  pid_t getPid() const;
     JobsList* getList() const;
     bool removeAlias(const std::string& toRemove);
     void setCurrFGPID(pid_t pid) {
