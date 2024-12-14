@@ -182,6 +182,9 @@ void ExternalCommand::execute() {
             perror("smash error: setpgrp failed");
             _exit(1);
         }
+        if (m_isBackGround) {
+            SmallShell::getInstance().getList()->addJob(this, m_pid);
+        }
         if (m_is_complex) { // Complex command = True
             //send to bash to excute
             std::string trimmed_cmd = _trim(Command::m_remove_background_char(getCommandLINE().c_str()));
@@ -210,15 +213,11 @@ void ExternalCommand::execute() {
     }
     else {
         m_pid = pid;
-        if (m_isBackGround) {
-            SmallShell::getInstance().getList()->addJob(this, m_pid);
-        } else {
             SmallShell::getInstance().setPid(m_pid);
             if (waitpid(m_pid, nullptr, WUNTRACED) == -1) {
                 perror("smash error: waitpid failed");
             }
             SmallShell::getInstance().setPid(-1);
-        }
     }
 }
 ////////////////////////Special Commands///////////////////////////////////////
