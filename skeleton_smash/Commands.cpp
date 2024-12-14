@@ -112,8 +112,9 @@ bool checkFormatNumber(const std::string& str) {
 
 ////////////////////////////////////////////////////////////////////////////////
 Command::Command(const char *cmd_line):m_cmd_line(std::string(cmd_line)){
+    m_isBackGround = _isBackgroundComamnd(m_cmd_line.c_str());
     std::string cpy = std::string(cmd_line);
-    size_t firstSpacePos = cpy.find(' ');
+    size_t firstSpacePos = cpy.find(' '); //TODO Should we check for all kind of whitspaces tabs,...
     if (firstSpacePos == std::string::npos) { //Handle the case only one string!
         m_command = cpy;
     }else{
@@ -158,7 +159,6 @@ std::string Command::m_remove_background_char(const char *cmd_line) const {
 ////////////////////////////////External Commands///////////////////////////////
 
 ExternalCommand::ExternalCommand(const char *cmd_line):Command(cmd_line), m_is_complex(complexity(cmd_line)) {
-    m_isBackGround = _isBackgroundComamnd(cmd_line);
 }
 
 bool ExternalCommand::complexity(const char *cmd_line)
