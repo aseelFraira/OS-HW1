@@ -11,12 +11,12 @@ void ctrlCHandler(int sig_num)
     SmallShell &smash = SmallShell::getInstance();
     if (smash.m_current_process != -1)
     {
-        if (kill(smash.m_current_process(), SIGKILL) == -1)
+        if (kill(smash.m_current_process, SIGKILL) == -1)
         {
             perror("smash error: kill failed");
             return;
         }
-        cout << "smash: process " << smash.m_current_process() << " was killed\n";
+        cout << "smash: process " << smash.m_current_process << " was killed\n";
         smash.setCurrFGPID(-1);
     }
 }
