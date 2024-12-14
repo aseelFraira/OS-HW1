@@ -427,7 +427,6 @@ void WhoAmICommand::execute() {
         std::cerr << "Error: Failed to read /etc/passwd file." << std::endl;
         return;
     }
-    std::cout << "Fields: " << std::endl;
 
     // Parse the /etc/passwd file line by line
     size_t start = 0;
@@ -462,7 +461,7 @@ void WhoAmICommand::execute() {
             std::string home_dir = (field_index >= 5) ? fields[5] : "Unknown";
 
             // Print the username and home directory
-            std::cout << username << " " << "nour" << std::endl;
+            std::cout << username << " " << home_dir << std::endl;
             return;
         }
     }
@@ -981,6 +980,8 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
       return new unaliasCommand(cmd_line);
   }else if (firstWord.compare("listdir") == 0) {
       return new ListDirCommand(cmd_line,1);
+  }else if (firstWord.compare("whoami") == 0) {
+      return new WhoAmICommand(cmd_line);
   }
   else {
     return new ExternalCommand(cmd_line);
