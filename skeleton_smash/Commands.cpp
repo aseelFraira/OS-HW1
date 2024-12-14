@@ -956,8 +956,10 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
     if (is_redirectional(cmd_line)) {
         return new RedirectionCommand(cmd_line);
     }
+    std::cout << "Entering exe cmd\n";
 
-  if (firstWord == "chprompt") {
+
+    if (firstWord == "chprompt") {
     return new ChangePromptCommand(cmd_line);
   }
   else if (firstWord == "showpid") {
@@ -1005,7 +1007,6 @@ std::string SmallShell::m_smash_prompt = "smash";
 void SmallShell::executeCommand(const char *cmd_line) {
     m_job_list.removeFinishedJobs();
     Command *command = CreateCommand(cmd_line);
-    std::cout << "Entering exe cmd\n";
 
     if (command) {
         try {
