@@ -9,7 +9,7 @@ void ctrlCHandler(int sig_num)
 {
     std::cout << "smash: got ctrl-C\n";
     SmallShell &smash = SmallShell::getInstance();
-
+    std::cout << "debug = " << smash.m_current_process<<"\n";
     if (smash.m_current_process != -1)
     {
         if (kill(smash.m_current_process, SIGKILL) == -1)
