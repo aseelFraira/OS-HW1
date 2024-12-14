@@ -520,11 +520,7 @@ void JobsList::addJob(Command *cmd,pid_t pid ,bool isStopped) { //NOTE:HERE WE S
 JobsList::~JobsList() = default;
 
 JobsList::JobEntry *JobsList::getLastJob() { //DONE
-    if(m_jobs.size() > 0){
-        return &(m_jobs.back());
-    }else{
-        return nullptr;
-    }
+   return m_jobs.size() ? &m_jobs.back() : nullptr;
 }
 
 
@@ -532,7 +528,7 @@ void JobsList::removeFinishedJobs() {
     std::vector<int> ids;
     for(JobsList::JobEntry &job : m_jobs){
         int result = waitpid(job.getJobPid(), nullptr, WNOHANG);
-        if(result == job.getJobPid() || result == -1){ //TODO: if error occured what should we do
+        if(result == -1 || result == job.getJobPid()){ //TODO: if error occured what should we do
             ids.push_back(job.getJobID());
         }
     }
