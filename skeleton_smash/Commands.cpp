@@ -589,6 +589,7 @@ int JobsList::JobEntry::getJobID() const {
 
 void JobsList::addJob(Command *cmd,pid_t pid ,bool isStopped) { //NOTE:HERE WE SHOULD SEND THE PID!!!
     int id = 0;
+    removeFinishedJobs();
     if(cmd) { //AVOID SEG FAULT
         if (getLastJob()) {
             id = getLastJob()->getJobID();
