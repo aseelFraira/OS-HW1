@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
         std::cout << smash.getPrompt() << "> ";
         std::string cmd_line;
         std::getline(std::cin, cmd_line);
-        std::cout << "Entering exe cmd\n";
+        std::cout << cmd_line <<std::endl;
         smash.executeCommand(cmd_line.c_str());
     }
     return 0;
