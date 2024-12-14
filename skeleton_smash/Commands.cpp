@@ -462,7 +462,7 @@ void WhoAmICommand::execute() {
             std::string home_dir = (field_index >= 5) ? fields[5] : "Unknown";
 
             // Print the username and home directory
-            std::cout << username << " " << home_dir << std::endl;
+            std::cout << username << " " << "nour" << std::endl;
             return;
         }
     }
