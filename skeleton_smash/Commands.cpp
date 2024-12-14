@@ -394,6 +394,88 @@ void ListDirCommand::execute() {
     }
     return;
 }
+///////////////////////////////////////////////////////////////////////////////
+WhoAmICommand::WhoAmICommand(const char *cmd_line) : Command(cmd_line) {}
+
+
+void WhoAmICommand::execute() {
+    // Get the real user ID
+    uid_t uid = getuid();
+
+    // Open the /etc/passwd file
+    int fd = open("/etc/passwd", O_RDONLY);
+    if (fd < 0) {
+        std::cerr << "Error: Could not open /etc/passwd file." << std::endl;
+        return;
+    }
+
+    // Buffer to read data
+    char buffer[4096];
+    ssize_t bytes_read;
+    std::string passwd_data;
+
+    // Read the file into the buffer
+    while ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
+        buffer[bytes_read] = '\0';
+        passwd_data += buffer;
+    }
+
+    // Close the file
+    close(fd);
+
+    if (bytes_read < 0) {
+        std::cerr << "Error: Failed to read /etc/passwd file." << std::endl;
+        return;
+    }
+
+    // Parse the /etc/passwd file line by line
+    size_t start = 0;
+    while (start < passwd_data.size()) {
+        size_t end = passwd_data.find('\n', start);
+        if (end == std::string::npos) end = passwd_data.size();
+
+        // Extract a single line
+        std::string line = passwd_data.substr(start, end - start);
+        start = end + 1;
+
+        // Parse the line (format: username:x:uid:gid:info:home:shell)
+        size_t colon_pos = 0;
+        size_t field_count = 0;
+        std::string username, home_dir;
+        int file_uid = -1;
+
+        for (size_t i = 0; i <= line.size(); ++i) {
+            if (i == line.size() || line[i] == ':') {
+                std::string field = line.substr(colon_pos, i - colon_pos);
+                colon_pos = i + 1;
+
+                switch (field_count) {
+                    case 0:
+                        username = field; // Username
+                        break;
+                    case 2:
+                        file_uid = std::stoi(field); // UID
+                        break;
+                    case 5:
+                        home_dir = field; // Home directory
+                        break;
+                    default:
+                        break;
+                }
+                ++field_count;
+            }
+        }
+
+        // Check if the UID matches
+        if (file_uid == uid) {
+            std::cout << username << " " << home_dir << std::endl;
+            return;
+        }
+    }
+
+    // If we reach here, no matching UID was found
+    std::cerr << "Error: User not found in /etc/passwd." << std::endl;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
