@@ -616,7 +616,7 @@ void ForegroundCommand::execute() {
     }else {
         id = atoi(m_args[1].c_str());
     }
-    JobsList::JobEntry* j =lst->getJobById(atoi(m_args[1].c_str())); //MA
+    JobsList::JobEntry* j =lst->getJobById(id); //MA
     SmallShell::getInstance().setPid(j->getJobPid());
 
     std::cout<< j->getCMD() << " " << SmallShell::getInstance().getPid()<<"\n";
