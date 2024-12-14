@@ -415,7 +415,7 @@ void WhoAmICommand::execute() {
     std::string passwd_data;
 
     // Read the file into the buffer
-    while ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
+    while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
         buffer[bytes_read] = '\0';  // Null-terminate the buffer
         passwd_data += buffer;
     }
@@ -432,13 +432,15 @@ void WhoAmICommand::execute() {
     size_t start = 0;
     while (start < passwd_data.size()) {
         size_t end = passwd_data.find('\n', start);
-        if (end == std::string::npos) end = passwd_data.size();
+        if (end == std::string::npos) {
+            end = passwd_data.size();
+        }
 
         // Extract a single line
         std::string line = passwd_data.substr(start, end - start);
         start = end + 1;
 
-        // Split the line into fields (format: username:x:uid:gid:info:home:shell)
+        // Parse the line into fields (username:x:uid:gid:info:home:shell)
         size_t field_start = 0, field_end;
         std::string fields[7];
         int field_index = 0;
@@ -448,15 +450,16 @@ void WhoAmICommand::execute() {
             field_start = field_end + 1;
             field_index++;
         }
-        // Handle the last field (if there's no trailing colon)
         if (field_index < 7 && field_start < line.size()) {
             fields[field_index] = line.substr(field_start);
+            field_index++;
         }
 
         // Check if the UID matches
         if (field_index > 2 && std::stoi(fields[2]) == uid) {
+            // Extract username and home directory
             std::string username = fields[0];
-            std::string home_dir = fields[5]; // Home directory field
+            std::string home_dir = (field_index > 5) ? fields[5] : "Unknown";
 
             // Print the username and home directory
             std::cout << username << " " << home_dir << std::endl;
@@ -464,9 +467,10 @@ void WhoAmICommand::execute() {
         }
     }
 
-    // If we reach here, no matching UID was found
+    // If no matching UID was found
     std::cerr << "Error: User not found in /etc/passwd." << std::endl;
 }
+
 
 
 
