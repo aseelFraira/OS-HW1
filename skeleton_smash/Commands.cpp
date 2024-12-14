@@ -185,9 +185,8 @@ void ExternalCommand::execute() {
 
         if (m_is_complex) { // Complex command = True
             //send to bash to excute
-            std::string trimmed_cmd = _trim(Command::m_remove_background_char(getCommandLINE().c_str()));
-            const char *command_line = trimmed_cmd.c_str();
-            if (execlp("/bin/bash", "/bin/bash", "-c", command_line, nullptr) == -1) {
+            const char *command_line =_trim(Command::m_remove_background_char(getCommandLINE().c_str())).c_str();
+            if (execlp("/bin/bash", "/bin/bash", "-c", command_line, nullptr) != 0) {
                 perror("smash error: execlp failed");
                 return;
             }
@@ -195,7 +194,7 @@ void ExternalCommand::execute() {
             char *args[COMMAND_MAX_ARGS + 1] = {0};
             char trimmed_cmd_line[COMMAND_MAX_LENGTH + 1];
 
-            strncpy(trimmed_cmd_line, getCommandLINE().c_str(), COMMAND_MAX_LENGTH);
+            strcpy(trimmed_cmd_line, getCommandLINE().c_str());
             _removeBackgroundSign(trimmed_cmd_line);
             _parseCommandLine(_trim(trimmed_cmd_line).c_str(), args);
 
@@ -203,10 +202,12 @@ void ExternalCommand::execute() {
                 perror("smash error: execvp failed");
             }
 
-            for (int i = 0; args[i] != nullptr; ++i) {
-                free(args[i]);
+            for (int i = 0; i <= COMMAND_MAX_ARGS; ++i) {
+                if (args[i] != nullptr) {
+                    free(args[i]);
+                }
             }
-            _exit(1);
+            exit(0);
         }
     }
     else {
