@@ -215,7 +215,7 @@ void ExternalCommand::execute() {
         if (m_isBackGround) {
             SmallShell::getInstance().getList()->addJob(this, m_pid);
         }else {
-            SmallShell::getInstance().setPid(m_pid);
+            SmallShell::getInstance().setCurrFGPID(m_pid);
             if (waitpid(m_pid, nullptr, WUNTRACED) == -1) {
                 perror("smash error: waitpid failed");
             }
