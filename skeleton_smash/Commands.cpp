@@ -703,7 +703,7 @@ void ForegroundCommand::execute() {
     if(waitpid(j->getJobPid(), nullptr,WUNTRACED) == -1){
         perror("smash error: waitpid failed");
     }
-    SmallShell::getInstance().setPid(-1);
+    SmallShell::getInstance().setCurrFGPID(-1);
 }
 
 ///////////////////////**COMMAND NUMBER 7 ---- QUIT**//////////////////////
