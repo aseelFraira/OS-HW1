@@ -608,7 +608,14 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
 
 
 void ForegroundCommand::execute() {
+
     JobsList* lst = SmallShell::getInstance().getList();
+    int id = -1;
+    if (m_args.size() == 1) {
+        id = lst->getLastJob()->getJobID();
+    }else {
+        id = atoi(m_args[1].c_str());
+    }
     JobsList::JobEntry* j =lst->getJobById(atoi(m_args[1].c_str())); //MA
     SmallShell::getInstance().setPid(j->getJobPid());
 
