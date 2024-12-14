@@ -195,7 +195,7 @@ void ExternalCommand::execute() {
             char trimmed_cmd_line[COMMAND_MAX_LENGTH + 1];
 
             strcpy(trimmed_cmd_line, getCommandLINE().c_str());
-     //       _removeBackgroundSign(trimmed_cmd_line);
+            _removeBackgroundSign(trimmed_cmd_line);
             _parseCommandLine(_trim(trimmed_cmd_line).c_str(), args);
 
             if (execvp(args[0], args) == -1) {
