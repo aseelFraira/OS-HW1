@@ -591,25 +591,30 @@ int JobsList::getSize() const {
 
 ///////////////////////**COMMAND NUMBER 6 ---- FG**//////////////////////
 ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
-    JobsList &lst = SmallShell::m_job_list;
-    if(!checkFormatNumber(m_args[1])){
-        std::cerr << "smash error: fg: invalid arguments\n";
+    JobsList* lst = SmallShell::getInstance().getList();
+
+    if (lst->getSize() == 0 && m_args.size() == 1) {
+        std::cerr << "smash error: fg: jobs list is empty\n";
     }else if (m_args.size() > 2) { //if we have more than one argument
         std::cerr << "smash error: fg: invalid arguments\n";
-    }else if (lst.getSize() == 0 && m_args.size() == 1) {
-        std::cerr << "smash error: fg: jobs list is empty\n";
-    }else if (lst.getJobById(atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
-        std::cerr << "smash error: fg: jobs list is empty\n";
+    }if (m_args.size() == 2) {
+        if(!checkFormatNumber(m_args[1])){
+            std::cerr << "smash error: fg: invalid arguments\n";
+        }else if (lst->getJobById(atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
+            std::cerr << "smash error: fg: jobs list is empty\n";
+        }
     }
 }
 
 
 void ForegroundCommand::execute() {
     JobsList* lst = SmallShell::getInstance().getList();
-    JobsList::JobEntry* j =lst->getJobById(atoi(m_args[1].c_str()));
+    JobsList::JobEntry* j =lst->getJobById(atoi(m_args[1].c_str())); //MA
     SmallShell::getInstance().setPid(j->getJobPid());
-    std::cout<< j->getCMD() << " " << SmallShell::getInstance().getPid();
+
+    std::cout<< j->getCMD() << " " << SmallShell::getInstance().getPid()<<"\n";
     SmallShell::getInstance().m_job_list.removeJobById(j->getJobID());
+
     if(waitpid(j->getJobPid(), nullptr,WUNTRACED) == -1){
         perror("smash error: waitpid failed");
     }
