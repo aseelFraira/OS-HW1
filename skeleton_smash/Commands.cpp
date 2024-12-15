@@ -717,15 +717,10 @@ void ForegroundCommand::execute() {
             id = atoi(m_args[1].c_str());
         }
 
-<<<<<<< HEAD
 
-    JobsList::JobEntry* j =lst->getJobById(id);
-    SmallShell::getInstance().setCurrFGPID(j->getJobPid());
-=======
-        JobsList::JobEntry* j =lst->getJobById(id); //MA
+        JobsList::JobEntry* j =lst->getJobById(id);
         pid_t p = j->getJobPid();
         SmallShell::getInstance().setCurrFGPID(p);
->>>>>>> 22c11bd05143180ee73ef9710663f97644ba0f53
 
         std::cout<< j->getCMD() << " " << p <<"\n";
 
