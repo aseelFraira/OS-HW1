@@ -690,7 +690,6 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
 
 
 void ForegroundCommand::execute() {
-    std::cout << "fg is built?:\n";
     JobsList* lst = SmallShell::getInstance().getList();
     int id = -1;
     if (m_args.size() == 1) {
@@ -1011,6 +1010,7 @@ void SmallShell::executeCommand(const char *cmd_line) {
     Command *command = CreateCommand(cmd_line);
     if (command) {
         try {
+            std::cout << "fg is built?: " <<command->getCommand()<<"\n";
             command->execute();
         }catch (std::exception &e) {
 
