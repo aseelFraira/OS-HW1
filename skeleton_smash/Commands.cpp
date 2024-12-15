@@ -928,7 +928,6 @@ SmallShell::~SmallShell() {
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
 Command *SmallShell::CreateCommand(const char *cmd_line) {
-    std::cout << "first is ?: " <<cmd_line<<"\n";
 
     string cmd_s = _trim(string(cmd_line));
     size_t first_delim = cmd_s.find_first_of(" \n");
@@ -1010,10 +1009,9 @@ std::string SmallShell::m_smash_prompt = "smash";
 
 void SmallShell::executeCommand(const char *cmd_line) {
     m_job_list.removeFinishedJobs();
-
+    std::cout << "fg created?: " <<cmd_line<<"\n";
     Command *command = CreateCommand(cmd_line);
 
-    std::cout << "fg DONE?: " <<command->getCommand()<<"\n";
 
     if (command) {
         try {
