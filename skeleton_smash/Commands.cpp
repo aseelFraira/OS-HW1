@@ -463,7 +463,7 @@ void PipeCommand::execute()
       }
     }
     else
-    {                                              // PipeType::Error
+    {
       if (dup2(files[WRITE], STDERR_FILENO) == -1) // Redirect stderr to pipe's write end
       {
         perror("smash error: dup2 failed");
@@ -1198,7 +1198,15 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
         return new aliasCommand(cmd_line,aliasName);
     }
     if (is_redirectional(cmd_line) == true) {
-        return new RedirectionCommand(cmd_line,aliasName);
+        char* cpy = strdup(cmd_line);
+        if (cpy == nullptr) {
+            std::cerr << "smash error: alias: strdup failed\n";
+            free(cpy);
+            return nullptr;
+        }
+        _removeBackgroundSign(cpy);
+
+        return new RedirectionCommand(cpy,aliasName);
     }
     if (_is_pipe_command(cmd_line)) {
         return  new PipeCommand(cmd_line,aliasName);
