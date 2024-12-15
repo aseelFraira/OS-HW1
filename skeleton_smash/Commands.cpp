@@ -276,7 +276,7 @@ void RedirectionCommand::execute() {
         perror("smash error: dup failed");
         return;
     }
-    if (close(1) == -1) {
+    if (close(1)) {
         perror("smash error: close failed");
         return;
     }
@@ -966,7 +966,6 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
         }
     }
     if (is_redirectional(cmd_line) == true) {
-        std::cout <<"the command is : " << firstWord << std::endl;
         return new RedirectionCommand(cmd_line);
     }
 
@@ -984,7 +983,6 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
       return new ChangeDirCommand(cmd_line);
   }
   else if (firstWord.compare("jobs") == 0) {
-      std::cout <<"entered jobsss\n";
       return new JobsCommand(cmd_line);
   }
   else if (firstWord.compare("fg") == 0) {
