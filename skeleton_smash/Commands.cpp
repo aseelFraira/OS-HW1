@@ -619,7 +619,8 @@ JobsList::JobEntry *JobsList::getLastJob() { //DONE
 void JobsList::removeFinishedJobs() {
     std::vector<int> ids;
     for(JobsList::JobEntry &job : m_jobs){
-        int result = waitpid(job.getJobPid(), nullptr, WNOHANG);
+        pid_t pid = job.getJobPid();
+        int result = waitpid(pid, nullptr, WNOHANG);
         if(result == -1 || result == job.getJobPid()){ //TODO: if error occured what should we do
             ids.push_back(job.getJobID());
         }
