@@ -1007,12 +1007,11 @@ void SmallShell::executeCommand(const char *cmd_line) {
     m_job_list.removeFinishedJobs();
 
     Command *command = CreateCommand(cmd_line);
-    std::cout<<"create is prob? "<<std::endl;
-
+    std::cout<<"create is prob? "<<command->getCommand()<<std::endl;
     if (command) {
         try {
-
             command->execute();
+            std::cout<<"pid after exe: "<<SmallShell::getInstance().<<std::endl;
         }catch (std::exception &e) {
 
         }
