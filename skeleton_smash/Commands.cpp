@@ -815,63 +815,64 @@ bool is_builtin(const std::string& name) {
 
 aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
     // Convert cmd_line to a string for processing
-    std::string input = std::string(cmd_line);
-
-    // Check for the "alias" prefix
-    if (input.find("alias ") != 0) {
-        std::cout <<"debug 2 \n";
-        std::cerr << "smash error: alias: invalid alias format\n";
-        return;
-    }
-
-    // Find the position of '='
-    size_t equal_pos = input.find('=');
-    if (equal_pos == std::string::npos) { // '=' is required
-        std::cout << "debug 1 \n";
-        std::cerr << "smash error: alias: invalid alias format\n";
-        return;
-    }
-
-    // Extract alias name (remove "alias " prefix)
-    std::string name = input.substr(6, equal_pos - 6); // From index 6 to just before '='
-    name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end()); // Remove whitespace
-
-    // Validate the alias name using regex
-    std::string name_pattern = R"(^[a-zA-Z0-9_]+$)";
-    std::regex regex_name(name_pattern);
-    if (!std::regex_match(name, regex_name)) {
-        std::cerr << "smash error: alias: invalid alias name\n";
-        return;
-    }
-
-    // Extract the command part between single quotes
-    size_t start_quote = input.find('\'', equal_pos);
-    size_t end_quote = input.rfind('\'');
-    std::string command;
-    if (start_quote != std::string::npos && end_quote != std::string::npos && start_quote < end_quote) {
-        command = input.substr(start_quote + 1, end_quote - start_quote - 1);
-    } else {
-        std::cerr << "smash error: alias: invalid alias format\n";
-        return;
-    }
-
-    // Check for duplicate alias names in the aliases map
-    for (const auto &p : SmallShell::getInstance().m_aliases) {
-        if (p.first == name) {
-            std::cerr << "smash error: alias: " << name << " already exists\n";
+    if (m_args.size() != 1) {
+        std::string input = std::string(cmd_line);
+        // Check for the "alias" prefix
+        if (input.find("alias ") != 0) {
+            std::cout <<"debug 2 \n";
+            std::cerr << "smash error: alias: invalid alias format\n";
             return;
         }
-    }
 
-    // Check if the name is a reserved command
-    if (is_special(name) || is_builtin(name)) {
-        std::cerr << "smash error: alias: " << name << " is a reserved command\n";
-        return;
-    }
+        // Find the position of '='
+        size_t equal_pos = input.find('=');
+        if (equal_pos == std::string::npos) { // '=' is required
+            std::cout << "debug 1 \n";
+            std::cerr << "smash error: alias: invalid alias format\n";
+            return;
+        }
 
-    // Assign values to class members
-    m_A_command = command;
-    m_name = name;
+        // Extract alias name (remove "alias " prefix)
+        std::string name = input.substr(6, equal_pos - 6); // From index 6 to just before '='
+        name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end()); // Remove whitespace
+
+        // Validate the alias name using regex
+        std::string name_pattern = R"(^[a-zA-Z0-9_]+$)";
+        std::regex regex_name(name_pattern);
+        if (!std::regex_match(name, regex_name)) {
+            std::cerr << "smash error: alias: invalid alias name\n";
+            return;
+        }
+
+        // Extract the command part between single quotes
+        size_t start_quote = input.find('\'', equal_pos);
+        size_t end_quote = input.rfind('\'');
+        std::string command;
+        if (start_quote != std::string::npos && end_quote != std::string::npos && start_quote < end_quote) {
+            command = input.substr(start_quote + 1, end_quote - start_quote - 1);
+        } else {
+            std::cerr << "smash error: alias: invalid alias format\n";
+            return;
+        }
+
+        // Check for duplicate alias names in the aliases map
+        for (const auto &p : SmallShell::getInstance().m_aliases) {
+            if (p.first == name) {
+                std::cerr << "smash error: alias: " << name << " already exists\n";
+                return;
+            }
+        }
+
+        // Check if the name is a reserved command
+        if (is_special(name) || is_builtin(name)) {
+            std::cerr << "smash error: alias: " << name << " is a reserved command\n";
+            return;
+        }
+
+        // Assign values to class members
+        m_A_command = command;
+        m_name = name;
+    }
 }
 
 void aliasCommand::execute() {
