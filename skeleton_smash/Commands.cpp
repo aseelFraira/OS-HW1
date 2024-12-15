@@ -933,6 +933,9 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 
     std::string firstWord = cmd_s.substr(0, first_delim);
 
+
+    std::cout << "first is ?: " <<firstWord<<"\n";
+
     // Extract the remaining part (args)
     std::string args;
     if (first_delim != std::string::npos) {
@@ -957,7 +960,6 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
     if (is_redirectional(cmd_line)) {
         return new RedirectionCommand(cmd_line);
     }
-    std::cout << "first is ?: " <<firstWord<<"\n";
 
 
     if (firstWord == "chprompt") {
