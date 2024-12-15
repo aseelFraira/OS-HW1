@@ -690,7 +690,7 @@ void ForegroundCommand::execute() {
             std::cerr << "smash error: fg: invalid arguments\n";
         return;
     }else if (m_args.size() == 2 && lst->getJobById(std::atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
-            std::cerr << "smash error: fg: job-id " << std::atoi(m_args[1].c_str()) << "does not exist\n";
+            std::cerr << "smash error: fg: job-id " << std::atoi(m_args[1].c_str()) << " does not exist\n";
         return;
     }
     else {
