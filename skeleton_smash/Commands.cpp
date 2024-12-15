@@ -577,12 +577,11 @@ std::string ChangeDirCommand::getFatherDir(const std::string &path) {
 JobsCommand::JobsCommand(const char *cmd_line): BuiltInCommand(cmd_line) {}
 
 void JobsCommand::execute() {
-    //SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
+    //SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETT
     JobsList *lst=  SmallShell::getInstance().getList();
-    for (JobsList::JobEntry &job : lst)
-{
-    std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
-}
+    for (JobsList::JobEntry &job : lst->m_jobs) {
+        std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
+    }
 }
 
 JobsList::JobsList():m_maxID(-1) {}
