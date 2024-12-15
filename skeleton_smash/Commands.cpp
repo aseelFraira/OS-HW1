@@ -256,14 +256,13 @@ RedirectionCommand::RedirectionType RedirectionCommand::getRedirectionType(const
     return RedirectionType::one_arrow;
 }
 
-RedirectionCommand::RedirectionCommand(const char *cmd_line):Command(cmd_line) ,
-m_command(),m_file_path() {
+RedirectionCommand::RedirectionCommand(const char *cmd_line):Command(cmd_line), m_command(),m_file_path() {
     if (!is_redirectional(cmd_line))
     {
-        throw std::logic_error("wrong name");
+        return;
     }
     m_redirection_1_2 = getRedirectionType(cmd_line);
-    std::string cpy_cmd_line = std::string(cmd_line);
+    std::string cpy_cmd_line(cmd_line);
     m_command = _trim(cpy_cmd_line.substr(0, cpy_cmd_line.find_first_of(">")));
     m_file_path = _trim(cpy_cmd_line.substr(cpy_cmd_line.find_last_of(">") + 1));
 
@@ -943,10 +942,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 
     string cmd_s = _trim(string(cmd_line));
     size_t first_delim = cmd_s.find_first_of(" \n");
-
     std::string firstWord = cmd_s.substr(0, first_delim);
-
-
 
     // Extract the remaining part (args)
     std::string args;
@@ -988,6 +984,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
       return new ChangeDirCommand(cmd_line);
   }
   else if (firstWord.compare("jobs") == 0) {
+      std::cout <<"entered jobsss\n";
       return new JobsCommand(cmd_line);
   }
   else if (firstWord.compare("fg") == 0) {
