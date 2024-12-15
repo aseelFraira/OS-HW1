@@ -770,11 +770,6 @@ void KillCommand::execute() {
     m_signal_num = std::stoi(m_args[1].substr(1));
     m_jobID = std::atoi(m_args[2].c_str());
 
-    if (m_signal_num <= 0 || m_signal_num > 31) {
-        std::cerr << "smash error: kill: invalid signal number " << m_signal_num << "\n";
-        return;
-    }
-
     JobsList* list = SmallShell::getInstance().getList();
     JobsList::JobEntry* job = list->getJobById(m_jobID);
 
