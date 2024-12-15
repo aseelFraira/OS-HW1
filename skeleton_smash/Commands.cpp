@@ -686,10 +686,10 @@ void ForegroundCommand::execute() {
         std::cerr << "smash error: fg: invalid arguments\n";
         return;
 
-    } else if(!checkFormatNumber(m_args[1])){
+    } else if(m_args.size() == 2 && !checkFormatNumber(m_args[1])){
             std::cerr << "smash error: fg: invalid arguments\n";
         return;
-    }else if (lst->getJobById(std::atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
+    }else if (m_args.size() == 2 && lst->getJobById(std::atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
             std::cerr << "smash error: fg: jobs list is empty\n";
         return;
     }
