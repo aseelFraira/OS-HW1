@@ -663,6 +663,7 @@ void JobsList::printJobsList() {
     for (JobsList::JobEntry &job : m_jobs)
     {
         std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
+        std::cout << job.getJobPid() << "\n";
     }
 }
 int JobsList::getSize() const {
@@ -703,6 +704,10 @@ void ForegroundCommand::execute() {
     }
 
     JobsList::JobEntry* j =lst->getJobById(id); //MA
+    if (j == nullptr) {
+        std::cerr << "smash error: jobs list is empty\n";
+        return;
+    }
     SmallShell::getInstance().setCurrFGPID(j->getJobPid());
 
     std::cout<< j->getCMD() << " " << j->getJobPid()<<"\n";
