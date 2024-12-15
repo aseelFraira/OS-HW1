@@ -281,7 +281,7 @@ void RedirectionCommand::execute() {
         return;
     }
     if (m_redirection_1_2 == RedirectionType::one_arrow) {
-        newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0655); //erease content
+        newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666); //erease content
         if (newFD == -1){
             perror("smash error: open failed");
             if (dup2(FDcpy, 1) == -1) // restore
@@ -298,7 +298,7 @@ void RedirectionCommand::execute() {
         }
     }
     else if (m_redirection_1_2 == RedirectionType::two_arrows) {
-        newFD = open(m_file_path.c_str(), O_RDWR | O_CREAT | O_APPEND, 0655); // append to content
+        newFD = open(m_file_path.c_str(), O_RDWR | O_CREAT | O_APPEND, 0666); // append to content
         if (newFD == -1) {
             perror("smash error: open failed");
             if (dup2(FDcpy, 1) == -1) {
