@@ -676,6 +676,7 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
 
     if (lst->getSize() == 0 && m_args.size() == 1) {
         std::cerr << "smash error: fg: jobs list is empty\n";
+        return ;
     }else if (m_args.size() > 2) { //if we have more than one argument
         std::cerr << "smash error: fg: invalid arguments\n";
     }if (m_args.size() == 2) {
