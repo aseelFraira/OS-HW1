@@ -819,6 +819,7 @@ aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
 
     // Check for the "alias" prefix
     if (input.find("alias ") != 0) {
+        std::cout <<"debug 2 \n";
         std::cerr << "smash error: alias: invalid alias format\n";
         return;
     }
@@ -826,6 +827,7 @@ aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
     // Find the position of '='
     size_t equal_pos = input.find('=');
     if (equal_pos == std::string::npos) { // '=' is required
+        std::cout << "debug 1 \n";
         std::cerr << "smash error: alias: invalid alias format\n";
         return;
     }
