@@ -271,7 +271,7 @@ RedirectionCommand::RedirectionCommand(const char *cmd_line):Command(cmd_line), 
 void RedirectionCommand::execute() {
     SmallShell &small_shell = SmallShell::getInstance();
     int FDcpy = dup(1);
-    int newFD = -1;
+    int newFD;
     if (FDcpy == -1) {
         perror("smash error: dup failed");
         return;
@@ -316,7 +316,7 @@ void RedirectionCommand::execute() {
 
     if (close(newFD) == -1) {
         perror("smash error: close failed");
-        return;
+        exit(0);
     }
     if (dup2(FDcpy, 1) == -1) {
         perror("smash error: dup2 failed");
