@@ -694,6 +694,7 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
 
 
 void ForegroundCommand::execute() {
+    std::cout << " debug \n";
     JobsList* lst = SmallShell::getInstance().getList();
     int id = -1;
     if (m_args.size() == 1) {
