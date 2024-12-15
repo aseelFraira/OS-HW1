@@ -12,7 +12,7 @@ void ctrlCHandler(int sig_num)
     std::cout << "debug = " << smash.m_current_process<<"\n";
     if (smash.m_current_process != -1)
     {
-        if (kill(smash.m_current_process, SIGKILL) == -1)
+        if (kill(smash.m_current_process, SIGINT) == -1)
         {
             perror("smash error: kill failed");
             return;
