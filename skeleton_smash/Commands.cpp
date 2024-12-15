@@ -231,13 +231,18 @@ void ExternalCommand::execute() {
 
 // should check cpy
 bool is_redirectional(const char *cmd_line) {
-    if (cmd_line != nullptr) {
-        std::string cpy = std::string(cmd_line);
-        size_t firstArrowPos = cpy.find_first_of(">");
-        if (firstArrowPos == -1) {
+    if (cmd_line)
+    {
+        std::string s(cmd_line);
+        int index_first = s.find_first_of(">");
+        if (index_first == -1)
+        {
             return false;
         }
-        return true;
+        else
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -964,7 +969,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
             return nullptr;
         }
     }
-    if (is_redirectional(cmd_line)) {
+    if (is_redirectional(cmd_line) == true) {
         std::cout <<"the command is : " << firstWord << std::endl;
         return new RedirectionCommand(cmd_line);
     }
