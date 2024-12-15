@@ -1173,7 +1173,10 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
     }
     _removeBackgroundSign(cpy);
     std::cout << cpy << std::endl;
+
     for (const auto& alias : m_aliases) {
+        std::cout << alias.first <<"   "<<alias.second << std::endl;
+
         if (alias.first == cpy) {
             if (_isBackgroundComamnd(cpy)) {
                 executeCommand((alias.second + ' ' + args + "&").c_str(),cmd_line );
