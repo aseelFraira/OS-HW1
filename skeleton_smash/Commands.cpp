@@ -277,63 +277,47 @@ RedirectionCommand::RedirectionCommand(const char *cmd_line,const std::string& a
 
 void RedirectionCommand::execute() {
     SmallShell &small_shell = SmallShell::getInstance();
-    int FDcpy = dup(1);
-    int newFD;
-    if (FDcpy == -1) {
+    int original_stdout = dup(1);  // Save original stdout
+    if (original_stdout == -1) {
         perror("smash error: dup failed");
         return;
     }
-    if (close(1)) {//-1
-        perror("smash error: close failed");
+
+    int newFD;
+    if (m_redirection_1_2 == RedirectionType::one_arrow) {
+        // Open file for overwrite
+        newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    } else if (m_redirection_1_2 == RedirectionType::two_arrows) {
+        // Open file for append
+        newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0666);
+    } else {
+        fprintf(stderr, "smash error: invalid redirection type\n");
         return;
     }
-    if (m_redirection_1_2 == RedirectionType::one_arrow) {
 
-        newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666); //erease content
-        if (newFD == -1){
-            perror("smash error: open failed");
-            if (dup2(FDcpy, 1) == -1) // restore
-            {
-                perror("smash error: dup2 failed");
-                return;
-            }
-            if (close(FDcpy) == -1) // close duplicate
-            {
-                perror("smash error: close failed");
-                return;
-            }
-             return;
-        }
+    if (newFD == -1) {
+        perror("smash error: open failed");
+        close(original_stdout);
+        return;
     }
-    else if (m_redirection_1_2 == RedirectionType::two_arrows) {
-        newFD = open(m_file_path.c_str(), O_RDWR | O_CREAT | O_APPEND, 0666); // append to content
-        if (newFD == -1) {
-            perror("smash error: open failed");
-            if (dup2(FDcpy, 1) == -1) {
-                perror("smash error: dup2 failed");
-                return;
-            }
-            if (close(FDcpy)) {//-1
-                perror("smash error: close failed");
-                return;
-            }
-            return;
-        }
+
+    // Redirect stdout to new file descriptor
+    if (dup2(newFD, 1) == -1) {
+        perror("smash error: dup2 failed");
+        close(newFD);
+        close(original_stdout);
+        return;
     }
+    close(newFD);  // We no longer need this file descriptor
+
+    // Execute the command
     small_shell.executeCommand(m_command.c_str());
 
-    if (close(newFD) == -1) {
-        perror("smash error: close failed");
-        exit(0);
+    // Restore original stdout
+    if (dup2(original_stdout, 1) == -1) {
+        perror("smash error: dup2 restore failed");
     }
-    if (dup2(FDcpy, 1) == -1) {
-        perror("smash error: dup2 failed");
-        return;
-    }
-    if (close(FDcpy)== -1) { //re -1
-        perror("smash error: close failed");
-        return;
-    }
+    close(original_stdout);  // Close the saved stdout descriptor
 }
 
 ///////////////////////**COMMAND NUMBER 3 ---- listdir**///////////////////
