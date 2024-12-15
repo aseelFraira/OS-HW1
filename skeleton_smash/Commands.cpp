@@ -111,14 +111,19 @@ bool checkFormatNumber(const std::string& str) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Command::Command(const char *cmd_line):m_cmd_line(std::string(cmd_line)){
+Command::Command(const char *cmd_line,const std::string& aliasName):m_cmd_line(std::string(cmd_line)),
+m_aliasName(std::string(cmd_line)) {
     m_isBackGround = _isBackgroundComamnd(m_cmd_line.c_str());
     std::string cpy = std::string(cmd_line);
-    size_t firstSpacePos = cpy.find(' '); //TODO Should we check for all kind of whitspaces tabs,...
+    size_t firstSpacePos = cpy.find(
+            ' '); //TODO Should we check for all kind of whitspaces tabs,...
     if (firstSpacePos == std::string::npos) { //Handle the case only one string!
         m_command = cpy;
-    }else{
-        m_command =cpy.substr(0, firstSpacePos);
+    } else {
+        m_command = cpy.substr(0, firstSpacePos);
+    }
+    if (aliasName != "") {
+        m_aliasName = aliasName;
     }
 }
 Command::~Command() {
@@ -130,7 +135,7 @@ std::string Command::getCommand() {
     return m_command;
 }
 std::string Command::getCommandLINE() {
-    return m_cmd_line;
+    return m_aliasName;
 }
 
 
@@ -577,16 +582,12 @@ std::string ChangeDirCommand::getFatherDir(const std::string &path) {
 JobsCommand::JobsCommand(const char *cmd_line): BuiltInCommand(cmd_line) {}
 
 void JobsCommand::execute() {
-<<<<<<< HEAD
     SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
-    JobsList* list = SmallShell::getInstance().getList();
-=======
-    //SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETT
+
     JobsList *lst=  SmallShell::getInstance().getList();
     for (JobsList::JobEntry &job : lst->m_jobs) {
         std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
     }
->>>>>>> 22c11bd05143180ee73ef9710663f97644ba0f53
 }
 
 JobsList::JobsList():m_maxID(-1) {}
@@ -961,7 +962,7 @@ SmallShell::~SmallShell() {
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
-Command *SmallShell::CreateCommand(const char *cmd_line) {
+Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& aliasName) {
 
     string cmd_s = _trim(string(cmd_line));
     size_t first_delim = cmd_s.find_first_of(" \n");
@@ -984,16 +985,12 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 
     for (const auto& alias : m_aliases) {
         if (alias.first == firstWord) {
-            executeCommand((alias.second + ' ' +args).c_str() );
+            executeCommand((alias.second + ' ' +args).c_str(),firstWord );
             return nullptr;
         }
     }
-<<<<<<< HEAD
-    if (is_redirectional(cmd_line)) {
 
-=======
     if (is_redirectional(cmd_line) == true) {
->>>>>>> 22c11bd05143180ee73ef9710663f97644ba0f53
         return new RedirectionCommand(cmd_line);
     }
 
@@ -1043,7 +1040,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 JobsList SmallShell::m_job_list;
 std::string SmallShell::m_smash_prompt = "smash";
 
-void SmallShell::executeCommand(const char *cmd_line) {
+void SmallShell::executeCommand(const char *cmd_line,const std::string& aliasCMD) {
     m_job_list.removeFinishedJobs();
     Command *command = CreateCommand(cmd_line);
 

@@ -14,11 +14,12 @@ class Command {
 protected:
     std::string m_cmd_line;
     std::string m_command;
+    std::string m_aliasName;
     bool m_isBackGround;
 
     // TODO: Add your data members
 public:
-    Command(const char *cmd_line);
+    Command(const char *cmd_line,const std::string& aliasName = "");
 
     virtual ~Command();
 
@@ -396,7 +397,7 @@ public:
     void setCurrFGPID(pid_t pid) {
         m_current_process = pid;
     }
-    Command *CreateCommand(const char *cmd_line);
+    Command *CreateCommand(const char *cmd_line,const std::string& aliasName ="");
 
     SmallShell(SmallShell const &) = delete; // disable copy ctor
     void operator=(SmallShell const &) = delete; // disable = operator
@@ -410,7 +411,7 @@ public:
 
     ~SmallShell();
 
-    void executeCommand(const char *cmd_line);
+    void executeCommand(const char *cmd_line,const std::string& aliasCMD ="");
 
     // TODO: add extra methods as needed
 };
