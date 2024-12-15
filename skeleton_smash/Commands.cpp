@@ -856,18 +856,6 @@ aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
         }
 
         // Check for duplicate alias names in the aliases map
-        for (const auto &p : SmallShell::getInstance().m_aliases) {
-            if (p.first == name) {
-                std::cerr << "smash error: alias: " << name << " already exists\n";
-                return;
-            }
-        }
-
-        // Check if the name is a reserved command
-        if (is_special(name) || is_builtin(name)) {
-            std::cerr << "smash error: alias: " << name << " is a reserved command\n";
-            return;
-        }
 
         // Assign values to class members
         m_A_command = command;
@@ -881,8 +869,24 @@ void aliasCommand::execute() {
             std::cout<<p.first<<"='"<< p.second << "'\n" ;
         }
     }else{
+
+        for (const auto &p : SmallShell::getInstance().m_aliases) {
+            if (p.first == m_name) {
+                std::cerr << "smash error: alias: " << m_name << " already exists\n";
+                return;
+            }
+        }
+
+        // Check if the name is a reserved command
+        if (is_special(m_name) || is_builtin(m_name)) {
+            std::cerr << "smash error: alias: " << m_name << " is a reserved command\n";
+            return;
+        }
+
         SmallShell::getInstance().m_aliases.push_back(pair<std::string,
                                                       std::string>(m_name,m_A_command));
+
+
     }
 
 }
