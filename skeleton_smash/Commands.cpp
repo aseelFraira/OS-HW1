@@ -1011,7 +1011,7 @@ void SmallShell::executeCommand(const char *cmd_line) {
     if (command) {
         try {
             command->execute();
-            std::cout<<"pid after exe: "<<SmallShell::getInstance().<<std::endl;
+            std::cout<<"pid after exe: "<<SmallShell::getInstance().m_current_process<<std::endl;
         }catch (std::exception &e) {
 
         }
