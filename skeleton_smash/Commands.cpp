@@ -313,19 +313,42 @@ void RedirectionCommand::execute() {
             return;
         }
     }
-    small_shell.executeCommand(m_command.c_str());
+    // Redirect stdout to the new file descriptor
+    if (dup2(newFD, STDOUT_FILENO) == -1) {
+        perror("smash error: dup2 failed");
+        if (close(newFD) == -1) {
+            perror("smash error: close failed");
+        }
+        if (dup2(FDcpy, STDOUT_FILENO) == -1) {
+            perror("smash error: dup2 failed");
+        }
+        if (close(FDcpy) == -1) {
+            perror("smash error: close failed");
+        }
+        return;
+    }
 
+    // Close the new file descriptor as it's no longer needed
     if (close(newFD) == -1) {
         perror("smash error: close failed");
-        exit(0);
+        if (dup2(FDcpy, STDOUT_FILENO) == -1) {
+            perror("smash error: dup2 failed");
+        }
+        if (close(FDcpy) == -1) {
+            perror("smash error: close failed");
+        }
+        return;
     }
-    if (dup2(FDcpy, 1) == -1) {
+
+    // Execute the command
+    small_shell.executeCommand(m_command.c_str());
+
+    // Restore the original stdout
+    if (dup2(FDcpy, STDOUT_FILENO) == -1) {
         perror("smash error: dup2 failed");
-        return;
     }
-    if (close(FDcpy)== -1) { //re -1
+    if (close(FDcpy) == -1) {
         perror("smash error: close failed");
-        return;
     }
 }
 
