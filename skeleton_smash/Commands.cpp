@@ -980,7 +980,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
 
     for (const auto& alias : m_aliases) {
         if (alias.first == firstWord) {
-            executeCommand((alias.second + ' ' +args).c_str(),firstWord );
+            executeCommand((alias.second + ' ' +args).c_str(),alias.second + ' ' +args );
             return nullptr;
         }
     }
