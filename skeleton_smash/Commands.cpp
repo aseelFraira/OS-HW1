@@ -192,7 +192,7 @@ void ExternalCommand::execute() {
 
         if (m_is_complex) { // Complex command = True
             //send to bash to excute
-            const char *command_line =_trim(Command::m_remove_background_char(getCommandLINE().c_str())).c_str();
+            const char *command_line =_trim(Command::m_remove_background_char(m_cmd_line.c_str())).c_str();
             if (execlp("/bin/bash", "/bin/bash", "-c", command_line, nullptr) != 0) {
                 perror("smash error: execlp failed");
                 return;
@@ -201,7 +201,7 @@ void ExternalCommand::execute() {
             char *args[COMMAND_MAX_ARGS + 1] = {0};
             char trimmed_cmd_line[COMMAND_MAX_LENGTH + 1];
 
-            strcpy(trimmed_cmd_line, getCommandLINE().c_str());
+            strcpy(trimmed_cmd_line, m_cmd_line.c_str());
             _removeBackgroundSign(trimmed_cmd_line);
             _parseCommandLine(_trim(trimmed_cmd_line).c_str(), args);
 
