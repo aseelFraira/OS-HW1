@@ -828,7 +828,6 @@ void aliasCommand::execute() {
         std::string input = m_cmd_line;
         // Check for the "alias" prefix
         if (input.find("alias ") != 0) {
-            std::cout <<"debug 2 \n";
             std::cerr << "smash error: alias: invalid alias format\n";
             return;
         }
@@ -836,7 +835,6 @@ void aliasCommand::execute() {
         // Find the position of '='
         size_t equal_pos = input.find('=');
         if (equal_pos == std::string::npos) { // '=' is required
-            std::cout << "debug 1 \n";
             std::cerr << "smash error: alias: invalid alias format\n";
             return;
         }
@@ -849,7 +847,7 @@ void aliasCommand::execute() {
         std::string name_pattern = R"(^[a-zA-Z0-9_]+$)";
         std::regex regex_name(name_pattern);
         if (!std::regex_match(name, regex_name)) {
-            std::cerr << "smash error: alias: invalid alias name\n";
+            std::cerr << "smash error: alias: invalid alias format\n";
             return;
         }
 
