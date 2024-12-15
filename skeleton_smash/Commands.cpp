@@ -673,6 +673,7 @@ int JobsList::getSize() const {
 ///////////////////////**COMMAND NUMBER 6 ---- FG**//////////////////////
 ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
     JobsList* lst = SmallShell::getInstance().getList();
+    std::cout << "fg starts to work:\n";
 
     if (lst->getSize() == 0 && m_args.size() == 1) {
         std::cerr << "smash error: fg: jobs list is empty\n";
@@ -689,7 +690,6 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
 
 
 void ForegroundCommand::execute() {
-    std::cout << "fg starts to work:\n";
 
     JobsList* lst = SmallShell::getInstance().getList();
     int id = -1;
