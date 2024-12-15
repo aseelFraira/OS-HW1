@@ -527,15 +527,14 @@ void GetCurrDirCommand::execute() {
 std::string ChangeDirCommand::m_prev_dir;
 ChangeDirCommand::ChangeDirCommand(const char *cmd_line,const std::string& aliasName):
 BuiltInCommand(cmd_line,aliasName){
+}
+
+void ChangeDirCommand::execute() {
     if(m_args.size() > 2){
         std::cerr<<"smash error: cd: too many arguments\n";
     }else if(m_args[1] == "-" && m_prev_dir.size() == 0){
         std::cerr<<"smash error: cd: OLDPWD not set\n";
     }
-
-}
-
-void ChangeDirCommand::execute() {
     char buffer[COMMAND_MAX_LENGTH + 1];
     if(getcwd(buffer,COMMAND_MAX_LENGTH + 1) == nullptr){
         perror("smash error: getcwd failed");
