@@ -975,7 +975,8 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
       return new JobsCommand(cmd_line);
   }
   else if (firstWord.compare("fg") == 0) {
-      return new ForegroundCommand(cmd_line);
+        std::cout << "fg is built?: " <<"\n";
+        return new ForegroundCommand(cmd_line);
   }
   else if (firstWord.compare("quit") == 0) {
       return new QuitCommand(cmd_line);
@@ -1008,9 +1009,11 @@ void SmallShell::executeCommand(const char *cmd_line) {
     m_job_list.removeFinishedJobs();
 
     Command *command = CreateCommand(cmd_line);
+
+    std::cout << "fg DONE?: " <<command->getCommand()<<"\n";
+
     if (command) {
         try {
-            std::cout << "fg is built?: " <<command->getCommand()<<"\n";
             command->execute();
         }catch (std::exception &e) {
 
