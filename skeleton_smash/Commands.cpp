@@ -708,13 +708,14 @@ void ForegroundCommand::execute() {
         std::cerr << "smash error: jobs list is empty\n";
         return;
     }
-    SmallShell::getInstance().setCurrFGPID(j->getJobPid());
+    pid_t p = j->getJobPid();
+    SmallShell::getInstance().setCurrFGPID(p);
 
     std::cout<< j->getCMD() << " " << j->getJobPid()<<"\n";
 
     SmallShell::getInstance().m_job_list.removeJobById(j->getJobID());
 
-    if(waitpid(j->getJobPid(), nullptr,WUNTRACED) == -1){
+    if(waitpid(p, nullptr,WUNTRACED) == -1){
         perror("smash error: waitpid failed");
     }
 
