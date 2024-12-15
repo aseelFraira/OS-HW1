@@ -672,54 +672,47 @@ int JobsList::getSize() const {
 
 ///////////////////////**COMMAND NUMBER 6 ---- FG**//////////////////////
 ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
-    JobsList* lst = SmallShell::getInstance().getList();
 
-    if (lst->getSize() == 0 && m_args.size() == 1) {
-        std::cerr << "smash error: fg: jobs list is empty\n";
-        return ;
-    }else if (m_args.size() > 2) { //if we have more than one argument
-        std::cerr << "smash error: fg: invalid arguments\n";
-        return;
-    }else if (m_args.size() == 2) {
-        if(!checkFormatNumber(m_args[1])){
-            std::cerr << "smash error: fg: invalid arguments\n";
-            return;
-        }else if (lst->getJobById(std::atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
-            std::cerr << "smash error: fg: jobs list is empty\n";
-            return;
-        }
-    }
 
 }
 
 
 void ForegroundCommand::execute() {
-    std::cout << " debug \n";
     JobsList* lst = SmallShell::getInstance().getList();
-    int id = -1;
-    if (m_args.size() == 1) {
-        id = lst->getLastJob()->getJobID();
-    }else {
-        id = atoi(m_args[1].c_str());
+    if (lst->getSize() == 0 && m_args.size() == 1) {
+        std::cerr << "smash error: fg: jobs list is empty\n";
+    }else if (m_args.size() > 2) { //if we have more than one argument
+        std::cerr << "smash error: fg: invalid arguments\n";
+
+    }else if (m_args.size() == 2) {
+        if(!checkFormatNumber(m_args[1])){
+            std::cerr << "smash error: fg: invalid arguments\n";
+        }else if (lst->getJobById(std::atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
+            std::cerr << "smash error: fg: jobs list is empty\n";
+        }
     }
+    else {
+        int id = -1;
+        if (m_args.size() == 1) {
+            id = lst->getLastJob()->getJobID();
+        }else {
+            id = atoi(m_args[1].c_str());
+        }
 
-    JobsList::JobEntry* j =lst->getJobById(id); //MA
-    if (j == nullptr) {
-        std::cerr << "smash error: jobs list is empty\n";
-        return;
+        JobsList::JobEntry* j =lst->getJobById(id); //MA
+        pid_t p = j->getJobPid();
+        SmallShell::getInstance().setCurrFGPID(p);
+
+        std::cout<< j->getCMD() << " " << j->getJobPid()<<"\n";
+
+        SmallShell::getInstance().m_job_list.removeJobById(j->getJobID());
+
+        if(waitpid(p, nullptr,WUNTRACED) == -1){
+            perror("smash error: waitpid failed");
+        }
+
+        SmallShell::getInstance().setCurrFGPID(-1);
     }
-    pid_t p = j->getJobPid();
-    SmallShell::getInstance().setCurrFGPID(p);
-
-    std::cout<< j->getCMD() << " " << j->getJobPid()<<"\n";
-
-    SmallShell::getInstance().m_job_list.removeJobById(j->getJobID());
-
-    if(waitpid(p, nullptr,WUNTRACED) == -1){
-        perror("smash error: waitpid failed");
-    }
-
-    SmallShell::getInstance().setCurrFGPID(-1);
 }
 
 ///////////////////////**COMMAND NUMBER 7 ---- QUIT**//////////////////////
