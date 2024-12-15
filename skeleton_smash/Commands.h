@@ -37,7 +37,7 @@ class BuiltInCommand : public Command {
 protected:
     std::vector<std::string> m_args; // contains the command and the arguments
 public:
-    BuiltInCommand(const char *cmd_line);
+    BuiltInCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~BuiltInCommand() {
     }
@@ -54,7 +54,7 @@ public:
 
     bool complexity(const char *cmd_line);
 
-    ExternalCommand(const char *cmd_line);
+    ExternalCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~ExternalCommand() {
     }
@@ -93,7 +93,7 @@ class RedirectionCommand : public Command {
     RedirectionType getRedirectionType(const char *cmd_line);
 public:
 
-    explicit RedirectionCommand(const char *cmd_line);
+     RedirectionCommand(const char *cmd_lines,const std::string& aliasName);
 
     virtual ~RedirectionCommand() = default;
 
@@ -106,7 +106,7 @@ public:
  */
 class ChangePromptCommand : public BuiltInCommand{
 public:
-    explicit ChangePromptCommand(const char *cmd_line);
+    explicit ChangePromptCommand(const char *cmd_line,const std::string& aliasName);
     ~ChangePromptCommand() override;
     void execute() override;
 };
@@ -118,7 +118,7 @@ public:
 
 class ShowPidCommand : public BuiltInCommand {
 public:
-    ShowPidCommand(const char *cmd_line);
+    ShowPidCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~ShowPidCommand() {
     }
@@ -134,7 +134,7 @@ public:
  */
 class GetCurrDirCommand : public BuiltInCommand {
 public:
-    GetCurrDirCommand(const char *cmd_line);
+    GetCurrDirCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~GetCurrDirCommand() {
     }
@@ -161,7 +161,7 @@ public:
     std::string getFatherDir(const std::string& path);
 
     // TODO: Add your data members public:
-    ChangeDirCommand(const char *cmd_line); //Why do we need this thing?
+    ChangeDirCommand(const char *cmd_line,const std::string& aliasName); //Why do we need this thing?
 
     virtual ~ChangeDirCommand() {
     }
@@ -186,7 +186,7 @@ class JobsList;
 class QuitCommand : public BuiltInCommand {
     // TODO: Add your data members public:
 public:
-    QuitCommand(const char *cmd_line);
+    QuitCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~QuitCommand() {
     }
@@ -252,7 +252,7 @@ public:
 class JobsCommand : public BuiltInCommand {
     // TODO: Add your data members
 public:
-    JobsCommand(const char *cmd_line);
+    JobsCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~JobsCommand() {
     }
@@ -269,7 +269,7 @@ class KillCommand : public BuiltInCommand {
     int m_jobID;
     int m_signal_num;
 public:
-    KillCommand(const char *cmd_line);
+    KillCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~KillCommand() {
     }
@@ -293,7 +293,7 @@ public:
 class ForegroundCommand : public BuiltInCommand {
     // TODO: Add your data members
 public:
-    ForegroundCommand(const char *cmd_line);
+    ForegroundCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~ForegroundCommand() {
     }
@@ -310,7 +310,7 @@ class ListDirCommand : public Command {
     std::string m_current_dir;
 
 public:
-    ListDirCommand(const char *cmd_line,int indent);
+    ListDirCommand(const char *cmd_line,int indent,const std::string& aliasName);
 
     virtual ~ListDirCommand() {
     }
@@ -322,7 +322,7 @@ class WhoAmICommand : public Command {
 
 
 public:
-    WhoAmICommand(const char *cmd_line);
+    WhoAmICommand(const char *cmd_line,const std::string& aliasName);
 
 
 
@@ -335,7 +335,7 @@ public:
 class NetInfo : public Command {
     // TODO: Add your data members
 public:
-    NetInfo(const char *cmd_line);
+    NetInfo(const char *cmd_line,const std::string& aliasName);
 
     virtual ~NetInfo() {
     }
@@ -347,7 +347,7 @@ class aliasCommand : public BuiltInCommand {
     std::string m_A_command;
     std::string m_name;
 public:
-    aliasCommand(const char *cmd_line);
+    aliasCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~aliasCommand() {
     }
@@ -358,7 +358,7 @@ public:
 class unaliasCommand : public BuiltInCommand {
 
 public:
-    unaliasCommand(const char *cmd_line);
+    unaliasCommand(const char *cmd_line,const std::string& aliasName);
 
     virtual ~unaliasCommand() {
     }

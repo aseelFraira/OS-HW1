@@ -140,7 +140,7 @@ std::string Command::getCommandLINE() {
 
 
 
-BuiltInCommand::BuiltInCommand(const char *cmd_line): Command(cmd_line){
+BuiltInCommand::BuiltInCommand(const char *cmd_line,const std::string& aliasName): Command(cmd_line,aliasName){
     int len = strlen(cmd_line);
     char* cpy = (char*) malloc(sizeof(char) * (len + 1));
     strcpy(cpy, cmd_line);
@@ -163,7 +163,8 @@ std::string Command::m_remove_background_char(const char *cmd_line) const {
 
 ////////////////////////////////External Commands///////////////////////////////
 
-ExternalCommand::ExternalCommand(const char *cmd_line):Command(cmd_line), m_is_complex(complexity(cmd_line)) {
+ExternalCommand::ExternalCommand(const char *cmd_line,const std::string& aliasName):Command(cmd_line,aliasName
+), m_is_complex(complexity(cmd_line)) {
 }
 
 bool ExternalCommand::complexity(const char *cmd_line)
@@ -261,7 +262,7 @@ RedirectionCommand::RedirectionType RedirectionCommand::getRedirectionType(const
     return RedirectionType::one_arrow;
 }
 
-RedirectionCommand::RedirectionCommand(const char *cmd_line):Command(cmd_line), m_command(),m_file_path() {
+RedirectionCommand::RedirectionCommand(const char *cmd_line,const std::string& aliasName):Command(cmd_line,aliasName), m_command(),m_file_path() {
     if (!is_redirectional(cmd_line))
     {
         return;
@@ -335,7 +336,7 @@ void RedirectionCommand::execute() {
 }
 
 ///////////////////////**COMMAND NUMBER 3 ---- listdir**///////////////////
-ListDirCommand::ListDirCommand(const char *cmd_line, int indent) : Command(cmd_line) {
+ListDirCommand::ListDirCommand(const char *cmd_line, int indent,const std::string& aliasName) : Command(cmd_line,aliasName) {
     int len = strlen(cmd_line);
     char* cpy = (char*) malloc(sizeof(char) * (len + 1));
     strcpy(cpy, cmd_line);
@@ -397,7 +398,7 @@ void ListDirCommand::execute() {
     for (const auto& dir : m_directories) {
         std::cout << std::string(m_indent_level, '\t') << dir << std::endl;
 
-        ListDirCommand recursive(("listdir " + m_current_dir + '/' + dir).c_str(), m_indent_level + 1);
+        ListDirCommand recursive(("listdir " + m_current_dir + '/' + dir).c_str(), m_indent_level + 1,m_aliasName);
         recursive.execute();
     }
 
@@ -407,7 +408,7 @@ void ListDirCommand::execute() {
     return;
 }
 ///////////////////////////////////////////////////////////////////////////////
-WhoAmICommand::WhoAmICommand(const char *cmd_line) : Command(cmd_line) {}
+WhoAmICommand::WhoAmICommand(const char *cmd_line,const std::string& aliasName) : Command(cmd_line,aliasName) {}
 
 
 void WhoAmICommand::execute() {
@@ -488,7 +489,7 @@ void WhoAmICommand::execute() {
 //////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////**COMMAND NUMBER 1 ---- CHPRMOPT**//////////////////////
-ChangePromptCommand::ChangePromptCommand(const char *cmd_line): BuiltInCommand(cmd_line) {} //ctor
+ChangePromptCommand::ChangePromptCommand(const char *cmd_line,const std::string& aliasName): BuiltInCommand(cmd_line,aliasName) {} //ctor
 void ChangePromptCommand::execute() {
     if(m_args.size() == 1){ //In case of zero arguments
         SmallShell::getInstance().setPrompt(DEFAULT_PROMPT); //TODO
@@ -500,7 +501,7 @@ void ChangePromptCommand::execute() {
 ChangePromptCommand::~ChangePromptCommand() = default;
 
 ///////////////////////**COMMAND NUMBER 2 ---- SHOWPID**//////////////////////
-ShowPidCommand::ShowPidCommand(const char *cmd_line): BuiltInCommand(cmd_line){}
+ShowPidCommand::ShowPidCommand(const char *cmd_line,const std::string& aliasName): BuiltInCommand(cmd_line,aliasName){}
 
 void ShowPidCommand::execute() {
     std::cout << "smash pid is " << getpid() << std::endl;
@@ -509,7 +510,7 @@ void ShowPidCommand::execute() {
 
 ///////////////////////**COMMAND NUMBER 3 ---- PWD**//////////////////////
 
-GetCurrDirCommand::GetCurrDirCommand(const char *cmd_line): BuiltInCommand(cmd_line) {}
+GetCurrDirCommand::GetCurrDirCommand(const char *cmd_line,const std::string& aliasName): BuiltInCommand(cmd_line,aliasName) {}
 void GetCurrDirCommand::execute() {
     char* buffer = getcwd(nullptr, 0); // Allocate buffer dynamically
     if (buffer != nullptr) {
@@ -523,8 +524,8 @@ void GetCurrDirCommand::execute() {
 ///////////////////////**COMMAND NUMBER 4 ---- CD**//////////////////////
 
 std::string ChangeDirCommand::m_prev_dir;
-ChangeDirCommand::ChangeDirCommand(const char *cmd_line):
-BuiltInCommand(cmd_line){
+ChangeDirCommand::ChangeDirCommand(const char *cmd_line,const std::string& aliasName):
+BuiltInCommand(cmd_line,aliasName){
     if(m_args.size() > 2){
         std::cerr<<"smash error: cd: too many arguments\n";
     }else if(m_args[1] == "-" && m_prev_dir.size() == 0){
@@ -579,7 +580,7 @@ std::string ChangeDirCommand::getFatherDir(const std::string &path) {
 }
 
 ///////////////////////**COMMAND NUMBER 5 ---- JOBS**//////////////////////
-JobsCommand::JobsCommand(const char *cmd_line): BuiltInCommand(cmd_line) {}
+JobsCommand::JobsCommand(const char *cmd_line,const std::string& aliasName): BuiltInCommand(cmd_line,aliasName) {}
 
 void JobsCommand::execute() {
     SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
@@ -684,7 +685,7 @@ int JobsList::getSize() const {
 }
 
 ///////////////////////**COMMAND NUMBER 6 ---- FG**//////////////////////
-ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
+ForegroundCommand::ForegroundCommand(const char *cmd_line,const std::string& aliasName) : BuiltInCommand(cmd_line,aliasName) {
 
 
 }
@@ -732,7 +733,7 @@ void ForegroundCommand::execute() {
 }
 
 ///////////////////////**COMMAND NUMBER 7 ---- QUIT**//////////////////////
-QuitCommand::QuitCommand(const char *cmd_line): BuiltInCommand(cmd_line) {
+QuitCommand::QuitCommand(const char *cmd_line,const std::string& aliasName): BuiltInCommand(cmd_line,aliasName) {
 }
 
 void QuitCommand::execute() {
@@ -765,7 +766,7 @@ bool checkSignum(std::string sig) {
 
 }
 
-KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
+KillCommand::KillCommand(const char *cmd_line,const std::string& aliasName): BuiltInCommand(cmd_line,aliasName){
 
 
 }
@@ -817,7 +818,7 @@ bool is_builtin(const std::string& name) {
     || name == "unalias";
 }
 
-aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
+aliasCommand::aliasCommand(const char *cmd_line,const std::string& aliasName) : BuiltInCommand(cmd_line,aliasName) {
     // Convert cmd_line to a string for processing
     if (m_args.size() != 1) {
         std::string input = std::string(cmd_line);
@@ -897,7 +898,7 @@ void aliasCommand::execute() {
 
 ///////////////////////**COMMAND NUMBER 10 ---- UNALIAS**//////////////////////
 
-unaliasCommand::unaliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line){
+unaliasCommand::unaliasCommand(const char *cmd_line,const std::string& aliasName) : BuiltInCommand(cmd_line,aliasName){
     if(m_args.size() == 1){
         std::cerr << "smash error: unalias: not enough arguments\n";
     }
@@ -983,46 +984,46 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
     }
 
     if (is_redirectional(cmd_line) == true) {
-        return new RedirectionCommand(cmd_line);
+        return new RedirectionCommand(cmd_line,aliasName);
     }
 
 
     if (firstWord == "chprompt") {
-    return new ChangePromptCommand(cmd_line);
+    return new ChangePromptCommand(cmd_line,aliasName);
   }
   else if (firstWord == "showpid") {
-    return new ShowPidCommand(cmd_line);
+    return new ShowPidCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("pwd") == 0) {
-      return new GetCurrDirCommand(cmd_line);
+      return new GetCurrDirCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("cd") == 0) {
-      return new ChangeDirCommand(cmd_line);
+      return new ChangeDirCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("jobs") == 0) {
-      return new JobsCommand(cmd_line);
+      return new JobsCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("fg") == 0) {
-        return new ForegroundCommand(cmd_line);
+        return new ForegroundCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("quit") == 0) {
-      return new QuitCommand(cmd_line);
+      return new QuitCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("kill") == 0) {
-      return new KillCommand(cmd_line);
+      return new KillCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("alias") == 0) {
-      return new aliasCommand(cmd_line);
+      return new aliasCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("unalias") == 0) {
-      return new unaliasCommand(cmd_line);
+      return new unaliasCommand(cmd_line,aliasName);
   }else if (firstWord.compare("listdir") == 0) {
-      return new ListDirCommand(cmd_line,1);
+      return new ListDirCommand(cmd_line,1,aliasName);
   }else if (firstWord.compare("whoami") == 0) {
-      return new WhoAmICommand(cmd_line);
+      return new WhoAmICommand(cmd_line,aliasName);
   }
   else {
-    return new ExternalCommand(cmd_line);
+    return new ExternalCommand(cmd_line,aliasName);
   }
 
     return nullptr;
