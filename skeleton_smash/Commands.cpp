@@ -1165,9 +1165,17 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
             args = ""; // No args found
         }
     }
+    char* cpy = strdup(cmd_line);
+    if (cpy == nullptr) {
+        std::cerr << "smash error: alias: strdup failed\n";
+        free(cpy);
+        return nullptr;
+    }
+
+    _removeBackgroundSign(cpy);
 
     for (const auto& alias : m_aliases) {
-        if (alias.first == firstWord) {
+        if (alias.first == cpy) {
             if (_isBackgroundComamnd(cmd_line)) {
                 executeCommand((alias.second + ' ' +args + '&').c_str(),cmd_line);
             }
