@@ -689,6 +689,7 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
 
 
 void ForegroundCommand::execute() {
+    std::cout << "fg starts to work:\n";
 
     JobsList* lst = SmallShell::getInstance().getList();
     int id = -1;
@@ -1011,7 +1012,6 @@ void SmallShell::executeCommand(const char *cmd_line) {
     if (command) {
         try {
             command->execute();
-            std::cout<<"pid after exe: "<<SmallShell::getInstance().m_current_process<<std::endl;
         }catch (std::exception &e) {
 
         }
