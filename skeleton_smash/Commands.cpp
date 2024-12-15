@@ -276,7 +276,7 @@ void RedirectionCommand::execute() {
         perror("smash error: dup failed");
         return;
     }
-    if (close(1)) {
+    if (close(1)) {//-1
         perror("smash error: close failed");
         return;
     }
@@ -305,7 +305,7 @@ void RedirectionCommand::execute() {
                 perror("smash error: dup2 failed");
                 return;
             }
-            if (close(FDcpy) == -1) {
+            if (close(FDcpy)) {//-1
                 perror("smash error: close failed");
                 return;
             }
@@ -322,7 +322,7 @@ void RedirectionCommand::execute() {
         perror("smash error: dup2 failed");
         return;
     }
-    if (close(FDcpy)) {
+    if (close(FDcpy)== -1) { //re -1
         perror("smash error: close failed");
         return;
     }
