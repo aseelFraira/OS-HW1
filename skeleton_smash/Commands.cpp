@@ -345,7 +345,7 @@ bool _is_pipe_command(const char *cmd_line)
     return false;
 }
 
-PipeCommand::PipeType PipeCommand::_get_pipe_type(const char *cmd_line)
+PipeCommand::PipeType PipeCommand::get_pipe_type(const char *cmd_line)
 {
     std::string s(cmd_line);
     int index_of_line = s.find_first_of("|");
@@ -355,11 +355,11 @@ PipeCommand::PipeType PipeCommand::_get_pipe_type(const char *cmd_line)
     {
         if (index_of_amp == -1)
         {
-            return PipeType::Standard;
+            return PipeType::regular;
         }
         else
         {
-            return PipeType::Error;
+            return PipeType::fault;
         }
     }
     else
@@ -368,13 +368,13 @@ PipeCommand::PipeType PipeCommand::_get_pipe_type(const char *cmd_line)
     }
 }
 
-std::string PipeCommand::_get_cmd_1(const char *cmd_line)
+std::string PipeCommand::get_firstCMD(const char *cmd_line)
 {
     std::string s(cmd_line);
     return s.substr(0, s.find_first_of("|"));
 }
 
-std::string PipeCommand::_get_cmd_2(const char *cmd_line)
+std::string PipeCommand::get_secondCMD(const char *cmd_line)
 {
 
     std::string s(cmd_line);
@@ -394,10 +394,10 @@ PipeCommand::PipeCommand(const char *cmd_line, const std::string& aliasName)
 {
   if (_is_pipe_command(cmd_line))
   {
-    m_pipe_type = _get_pipe_type(cmd_line);
-    m_cmd_1 = _trim(_get_cmd_1(cmd_line));
-    m_cmd_2 = _trim(_get_cmd_2(cmd_line));
-    if (m_cmd_1 == "" || m_cmd_2 == "")
+    m_type_of_pipe = get_pipe_type(cmd_line);
+    m_firstCMD = _trim(get_firstCMD(cmd_line));
+    m_secondCMD = _trim(get_secondCMD(cmd_line));
+    if (m_firstCMD == "" || m_secondCMD == "")
     {
       throw std::logic_error("PipeCommand::PipeCommand");
     }
@@ -454,7 +454,7 @@ void PipeCommand::execute()
       perror("smash error: setpgrp failed");
       return;
     }
-    if (m_pipe_type == PipeType::Standard)
+    if (m_type_of_pipe == PipeType::regular)
     {
       if (dup2(files[WRITE], STDOUT_FILENO) == -1) // Redirect stdout to pipe's write end
       {
@@ -480,7 +480,7 @@ void PipeCommand::execute()
       perror("smash error: close failed");
       return;
     }
-    smash.executeCommand(m_cmd_1.c_str());
+    smash.executeCommand(m_firstCMD.c_str());
     exit(0);
   }
   else
@@ -522,7 +522,7 @@ void PipeCommand::execute()
       perror("smash error: close failed");
       return;
     }
-    smash.executeCommand(m_cmd_2.c_str());
+    smash.executeCommand(m_secondCMD.c_str());
     exit(0);
   }
   else
@@ -1129,16 +1129,6 @@ void unaliasCommand::execute() {
 //////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-
-
-
-
-
-
-
 SmallShell::SmallShell() {
 // TODO: add your implementation
 }
@@ -1150,18 +1140,6 @@ void SmallShell::setPrompt(const std::string &newPrompt) {
 SmallShell::~SmallShell() {
 // TODO: add your implementation
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
    /////////////////////////////////////////////////////////////////////////
 /**

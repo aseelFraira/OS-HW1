@@ -76,8 +76,8 @@ class PipeCommand : public Command
 public:
     enum class PipeType
     {
-        Standard,
-        Error
+        regular,
+        fault
     };
 
     PipeCommand(const char *cmd_line, const std::string& aliasName);
@@ -85,13 +85,13 @@ public:
     void execute() override;
 
 private:
-    PipeType m_pipe_type;
-    std::string m_cmd_1;
-    std::string m_cmd_2;
+    PipeType m_type_of_pipe;
+    std::string m_firstCMD;
+    std::string m_secondCMD;
 
-    PipeCommand::PipeType _get_pipe_type(const char *cmd_line);
-    std::string _get_cmd_1(const char *cmd_line);
-    std::string _get_cmd_2(const char *cmd_line);
+    PipeCommand::PipeType get_pipe_type(const char *cmd_line);
+    std::string get_firstCMD(const char *cmd_line);
+    std::string get_secondCMD(const char *cmd_line);
 };
 
 class RedirectionCommand : public Command {
