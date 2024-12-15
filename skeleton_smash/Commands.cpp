@@ -1175,7 +1175,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
 
     for (const auto& alias : m_aliases) {
         if (alias.first == cpy) {
-            if (_isBackgroundComamnd(cpy)) {
+            if (_isBackgroundComamnd(cmd_line)) {
                 std::cout << alias.second + ' ' + args + "&" << std::endl;
                 executeCommand((alias.second + ' ' + args + "&").c_str(),cmd_line );
             }
