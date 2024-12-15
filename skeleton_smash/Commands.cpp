@@ -584,10 +584,7 @@ JobsCommand::JobsCommand(const char *cmd_line): BuiltInCommand(cmd_line) {}
 void JobsCommand::execute() {
     SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
 
-    JobsList *lst=  SmallShell::getInstance().getList();
-    for (JobsList::JobEntry &job : lst->m_jobs) {
-        std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
-    }
+
 }
 
 JobsList::JobsList():m_maxID(-1) {}
