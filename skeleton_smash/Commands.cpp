@@ -234,7 +234,7 @@ bool is_redirectional(const char *cmd_line) {
     if (cmd_line != nullptr) {
         std::string cpy = std::string(cmd_line);
         size_t firstArrowPos = cpy.find_first_of(">");
-        if (firstArrowPos == std::string::npos) {
+        if (firstArrowPos == -1) {
             return false;
         }
         return true;
@@ -965,6 +965,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
         }
     }
     if (is_redirectional(cmd_line)) {
+        std::cout <<"the command is : " << firstWord << std::endl;
         return new RedirectionCommand(cmd_line);
     }
 
