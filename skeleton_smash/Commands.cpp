@@ -928,13 +928,14 @@ SmallShell::~SmallShell() {
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
 Command *SmallShell::CreateCommand(const char *cmd_line) {
+    std::cout << "first is ?: " <<cmd_line<<"\n";
+
     string cmd_s = _trim(string(cmd_line));
     size_t first_delim = cmd_s.find_first_of(" \n");
 
     std::string firstWord = cmd_s.substr(0, first_delim);
 
 
-    std::cout << "first is ?: " <<firstWord<<"\n";
 
     // Extract the remaining part (args)
     std::string args;
