@@ -80,7 +80,7 @@ public:
         Error
     };
 
-    PipeCommand(const char *cmd_line);
+    PipeCommand(const char *cmd_line, const std::string& aliasName);
     virtual ~PipeCommand();
     void execute() override;
 

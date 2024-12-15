@@ -389,8 +389,8 @@ std::string PipeCommand::_get_cmd_2(const char *cmd_line)
     return cmd2;
 }
 
-PipeCommand::PipeCommand(const char *cmd_line)
-    : Command(cmd_line)
+PipeCommand::PipeCommand(const char *cmd_line, const std::string& aliasName)
+    : Command(cmd_line, aliasName)
 {
   if (_is_pipe_command(cmd_line))
   {
@@ -1199,6 +1199,9 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
     }
     if (is_redirectional(cmd_line) == true) {
         return new RedirectionCommand(cmd_line,aliasName);
+    }
+    if (_is_pipe_command(cmd_line)) {
+        return  new PipeCommand(cmd_line,aliasName);
     }
 
 
