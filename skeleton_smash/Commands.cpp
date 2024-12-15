@@ -578,7 +578,7 @@ JobsCommand::JobsCommand(const char *cmd_line): BuiltInCommand(cmd_line) {}
 
 void JobsCommand::execute() {
     //SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
-    JobsList *jblst=  SmallShell::getInstance().getList();
+    JobsList *lst=  SmallShell::getInstance().getList();
     for (JobsList::JobEntry &job : lst)
 {
     std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
