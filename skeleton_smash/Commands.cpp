@@ -1004,6 +1004,7 @@ JobsList SmallShell::m_job_list;
 std::string SmallShell::m_smash_prompt = "smash";
 
 void SmallShell::executeCommand(const char *cmd_line) {
+    std::cout<<"DEbooog "<<std::endl;
     m_job_list.removeFinishedJobs();
     Command *command = CreateCommand(cmd_line);
 
