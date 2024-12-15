@@ -740,8 +740,7 @@ bool checkSignum(std::string sig) {
     if (sig[0] != '-') {
         return false;
     }
-    if (sig.length() >= 2 ) {}
-      while (sig[i]) {
+    while (sig[i]) {
            if (!isdigit(sig[i])) {
             return false;
           }
@@ -753,42 +752,50 @@ bool checkSignum(std::string sig) {
 }
 
 KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
-    if(m_args.size() > 3 || m_args.size() < 2){
-        std::cerr << "smash error: kill: invalid arguments\n" ;
-    }
-    else if (!checkSignum(m_args[1]) || !checkFormatNumber(m_args[2])) {
-        std::cerr << "smash error: kill: invalid arguments\n" ;
-    }else {
-        m_jobID = std::atoi(m_args[2].c_str());
-        m_signal_num = std::stoi(m_args[1].substr(1));
-        if (m_signal_num < 0 || m_signal_num > 31) {
-            errno = EINVAL;
-            std::cerr <<"smash error: kill failed\n";
-        }
-        if(!SmallShell::getInstance().getList()->getJobById(m_jobID)){
-            std::cerr << "smash error: kill: job-id "<<m_jobID<<" does not exist\n" ;
-            return;
-        }
-    }
+
 
 }
 
 void KillCommand::execute() {
-    JobsList* list = SmallShell::getInstance().getList();
-    JobsList::JobEntry *job = list->getJobById(m_jobID);
-    if (job != nullptr)
-    {
-        if (kill(job->getJobPid(),m_signal_num ) != 0) // failure
-        {
-            perror("smash error: kill failed");
-            return;
-        }
-        std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
+    if (m_args.size() != 3) {
+        std::cerr << "smash error: kill: invalid arguments\n";
+        return;
     }
-    if(m_signal_num == SIGKILL){
+
+    if (!checkSignum(m_args[1]) || !checkFormatNumber(m_args[2])) {
+        std::cerr << "smash error: kill: invalid arguments\n";
+        return;
+    }
+
+    m_signal_num = std::stoi(m_args[1].substr(1));
+    m_jobID = std::atoi(m_args[2].c_str());
+
+    if (m_signal_num <= 0 || m_signal_num > 31) {
+        std::cerr << "smash error: kill: invalid signal number " << m_signal_num << "\n";
+        return;
+    }
+
+    JobsList* list = SmallShell::getInstance().getList();
+    JobsList::JobEntry* job = list->getJobById(m_jobID);
+
+    if (!job) {
+        std::cerr << "smash error: kill: job-id " << m_jobID << " does not exist\n";
+        return;
+    }
+
+    if (kill(job->getJobPid(), m_signal_num) != 0) {
+        perror("smash error: kill failed");
+        return;
+    }
+
+    std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
+
+    // Handle SIGKILL explicitly
+    if (m_signal_num == SIGKILL) {
         list->removeJobById(m_jobID);
     }
 }
+
 ///////////////////////**COMMAND NUMBER 9 ---- ALIAS**//////////////////////
 bool is_special(const std::string& name) {
     return name == "whoami"  || name == "listdir"
