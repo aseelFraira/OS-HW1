@@ -677,7 +677,7 @@ void JobsList::killAllJobs() {
 void JobsList::printJobsList() {
     for (JobsList::JobEntry &job : m_jobs)
     {
-        std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
+        std::cout << "[" << job.getJobID() << "] " << job.getCMD() << std::endl;
     }
 }
 int JobsList::getSize() const {
