@@ -1172,13 +1172,11 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
         return nullptr;
     }
     _removeBackgroundSign(cpy);
-    std::cout << cpy << std::endl;
 
     for (const auto& alias : m_aliases) {
-        std::cout << alias.first <<"   "<<alias.second << std::endl;
-
         if (alias.first == cpy) {
             if (_isBackgroundComamnd(cpy)) {
+                std::cout << alias.second + ' ' + args + "&" << std::endl;
                 executeCommand((alias.second + ' ' + args + "&").c_str(),cmd_line );
             }
             executeCommand((alias.second + ' ' +args).c_str(),cmd_line);
