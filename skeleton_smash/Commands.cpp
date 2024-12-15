@@ -663,7 +663,6 @@ void JobsList::printJobsList() {
     for (JobsList::JobEntry &job : m_jobs)
     {
         std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
-        std::cout << job.getJobPid() << "\n";
     }
 }
 int JobsList::getSize() const {
