@@ -1168,7 +1168,10 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
 
     for (const auto& alias : m_aliases) {
         if (alias.first == firstWord) {
-            executeCommand((alias.second + ' ' +args).c_str(),alias.first + ' ' +args );
+            if (_isBackgroundComamnd(cmd_line)) {
+                executeCommand((alias.second + ' ' +args + '&').c_str(),cmd_line);
+            }
+            executeCommand((alias.second + ' ' +args).c_str(),cmd_line);
             return nullptr;
         }
     }
