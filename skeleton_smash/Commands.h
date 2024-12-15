@@ -70,15 +70,28 @@ public:
     void execute() override;
 };
 
-class PipeCommand : public Command {
-    // TODO: Add your data members
+
+class PipeCommand : public Command
+{
 public:
+    enum class PipeType
+    {
+        Standard,
+        Error
+    };
+
     PipeCommand(const char *cmd_line);
-
-    virtual ~PipeCommand() {
-    }
-
+    virtual ~PipeCommand();
     void execute() override;
+
+private:
+    PipeType m_pipe_type;
+    std::string m_cmd_1;
+    std::string m_cmd_2;
+
+    PipeCommand::PipeType _get_pipe_type(const char *cmd_line);
+    std::string _get_cmd_1(const char *cmd_line);
+    std::string _get_cmd_2(const char *cmd_line);
 };
 
 class RedirectionCommand : public Command {
