@@ -277,21 +277,23 @@ RedirectionCommand::RedirectionCommand(const char *cmd_line,const std::string& a
 
 void RedirectionCommand::execute() {
     SmallShell &small_shell = SmallShell::getInstance();
-    int original_stdout = dup(1);  // Save original stdout
+
+    // Save the original stdout (FD 1)
+    int original_stdout = dup(1);
     if (original_stdout == -1) {
         perror("smash error: dup failed");
         return;
     }
 
+    // Open the target file for redirection
     int newFD;
     if (m_redirection_1_2 == RedirectionType::one_arrow) {
-        // Open file for overwrite
         newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     } else if (m_redirection_1_2 == RedirectionType::two_arrows) {
-        // Open file for append
         newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0666);
     } else {
         fprintf(stderr, "smash error: invalid redirection type\n");
+        close(original_stdout);
         return;
     }
 
@@ -301,24 +303,25 @@ void RedirectionCommand::execute() {
         return;
     }
 
-    // Redirect stdout to new file descriptor
+    // Redirect stdout to the target file
     if (dup2(newFD, 1) == -1) {
         perror("smash error: dup2 failed");
         close(newFD);
         close(original_stdout);
         return;
     }
-    close(newFD);  // We no longer need this file descriptor
+    close(newFD);  // No longer need this descriptor
 
-    // Execute the command
+    // Execute the command safely
     small_shell.executeCommand(m_command.c_str());
 
-    // Restore original stdout
+    // Restore the original stdout
     if (dup2(original_stdout, 1) == -1) {
         perror("smash error: dup2 restore failed");
     }
-    close(original_stdout);  // Close the saved stdout descriptor
+    close(original_stdout);
 }
+
 
 ///////////////////////**COMMAND NUMBER 3 ---- listdir**///////////////////
 ListDirCommand::ListDirCommand(const char *cmd_line, int indent,const std::string& aliasName) : Command(cmd_line,aliasName) {
@@ -570,7 +573,6 @@ JobsCommand::JobsCommand(const char *cmd_line,const std::string& aliasName): Bui
 
 void JobsCommand::execute() {
     SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
-
 
 }
 
