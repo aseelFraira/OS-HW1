@@ -1034,7 +1034,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
 JobsList SmallShell::m_job_list;
 std::string SmallShell::m_smash_prompt = "smash";
 
-void SmallShell::executeCommand(const char *cmd_line,const std::string& aliasCMD = "") {
+void SmallShell::executeCommand(const char *cmd_line,const std::string& aliasCMD) {
     m_job_list.removeFinishedJobs();
     Command *command = CreateCommand(cmd_line,aliasCMD);
 
