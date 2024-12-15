@@ -986,7 +986,9 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
             return nullptr;
         }
     }
-
+    if (firstWord.compare("alias") == 0) {
+        return new aliasCommand(cmd_line,aliasName);
+    }
     if (is_redirectional(cmd_line) == true) {
         return new RedirectionCommand(cmd_line,aliasName);
     }
@@ -1015,9 +1017,6 @@ Command *SmallShell::CreateCommand(const char *cmd_line,const std::string& alias
   }
   else if (firstWord.compare("kill") == 0) {
       return new KillCommand(cmd_line,aliasName);
-  }
-  else if (firstWord.compare("alias") == 0) {
-      return new aliasCommand(cmd_line,aliasName);
   }
   else if (firstWord.compare("unalias") == 0) {
       return new unaliasCommand(cmd_line,aliasName);
