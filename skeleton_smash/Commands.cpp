@@ -281,7 +281,7 @@ void RedirectionCommand::execute() {
         return;
     }
     if (m_redirection_1_2 == RedirectionType::one_arrow) {
-        std::cout << " debug \n";
+
         newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666); //erease content
         if (newFD == -1){
             perror("smash error: open failed");
