@@ -113,6 +113,9 @@ bool checkFormatNumber(const std::string& str) {
 ////////////////////////////////////////////////////////////////////////////////
 Command::Command(const char *cmd_line,const std::string& aliasName):m_cmd_line(std::string(cmd_line)),
 m_aliasName(std::string(cmd_line)) {
+    if (aliasName != "") {
+        m_aliasName = aliasName;
+    }
     m_isBackGround = _isBackgroundComamnd(m_cmd_line.c_str());
     std::string cpy = std::string(cmd_line);
     size_t firstSpacePos = cpy.find(
@@ -122,9 +125,7 @@ m_aliasName(std::string(cmd_line)) {
     } else {
         m_command = cpy.substr(0, firstSpacePos);
     }
-    if (aliasName != "") {
-        m_aliasName = aliasName;
-    }
+
 }
 Command::~Command() {
 
@@ -1035,7 +1036,7 @@ std::string SmallShell::m_smash_prompt = "smash";
 
 void SmallShell::executeCommand(const char *cmd_line,const std::string& aliasCMD) {
     m_job_list.removeFinishedJobs();
-    Command *command = CreateCommand(cmd_line);
+    Command *command = CreateCommand(cmd_line,aliasCMD);
 
 
     if (command) {
