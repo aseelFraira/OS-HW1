@@ -231,13 +231,18 @@ void ExternalCommand::execute() {
 
 // should check cpy
 bool is_redirectional(const char *cmd_line) {
-    if (cmd_line != nullptr) {
-        std::string cpy = std::string(cmd_line);
-        size_t firstArrowPos = cpy.find_first_of(">");
-        if (firstArrowPos == std::string::npos) {
+    if (cmd_line)
+    {
+        std::string s(cmd_line);
+        int index_first = s.find_first_of(">");
+        if (index_first == -1)
+        {
             return false;
         }
-        return true;
+        else
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -251,14 +256,13 @@ RedirectionCommand::RedirectionType RedirectionCommand::getRedirectionType(const
     return RedirectionType::one_arrow;
 }
 
-RedirectionCommand::RedirectionCommand(const char *cmd_line):Command(cmd_line) ,
-m_command(),m_file_path() {
+RedirectionCommand::RedirectionCommand(const char *cmd_line):Command(cmd_line), m_command(),m_file_path() {
     if (!is_redirectional(cmd_line))
     {
-        throw std::logic_error("wrong name");
+        return;
     }
     m_redirection_1_2 = getRedirectionType(cmd_line);
-    std::string cpy_cmd_line = std::string(cmd_line);
+    std::string cpy_cmd_line(cmd_line);
     m_command = _trim(cpy_cmd_line.substr(0, cpy_cmd_line.find_first_of(">")));
     m_file_path = _trim(cpy_cmd_line.substr(cpy_cmd_line.find_last_of(">") + 1));
 
@@ -267,17 +271,18 @@ m_command(),m_file_path() {
 void RedirectionCommand::execute() {
     SmallShell &small_shell = SmallShell::getInstance();
     int FDcpy = dup(1);
-    int newFD = -1;
+    int newFD;
     if (FDcpy == -1) {
         perror("smash error: dup failed");
         return;
     }
-    if (close(1) == -1) {
+    if (close(1)) {//-1
         perror("smash error: close failed");
         return;
     }
     if (m_redirection_1_2 == RedirectionType::one_arrow) {
-        newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644); //erease content
+
+        newFD = open(m_file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666); //erease content
         if (newFD == -1){
             perror("smash error: open failed");
             if (dup2(FDcpy, 1) == -1) // restore
@@ -294,14 +299,14 @@ void RedirectionCommand::execute() {
         }
     }
     else if (m_redirection_1_2 == RedirectionType::two_arrows) {
-        newFD = open(m_file_path.c_str(), O_RDWR | O_CREAT | O_APPEND, 0655); // append to content
+        newFD = open(m_file_path.c_str(), O_RDWR | O_CREAT | O_APPEND, 0666); // append to content
         if (newFD == -1) {
             perror("smash error: open failed");
             if (dup2(FDcpy, 1) == -1) {
                 perror("smash error: dup2 failed");
                 return;
             }
-            if (close(FDcpy) == -1) {
+            if (close(FDcpy)) {//-1
                 perror("smash error: close failed");
                 return;
             }
@@ -312,13 +317,13 @@ void RedirectionCommand::execute() {
 
     if (close(newFD) == -1) {
         perror("smash error: close failed");
-        return;
+        exit(0);
     }
     if (dup2(FDcpy, 1) == -1) {
         perror("smash error: dup2 failed");
         return;
     }
-    if (close(FDcpy)) {
+    if (close(FDcpy)== -1) { //re -1
         perror("smash error: close failed");
         return;
     }
@@ -572,8 +577,16 @@ std::string ChangeDirCommand::getFatherDir(const std::string &path) {
 JobsCommand::JobsCommand(const char *cmd_line): BuiltInCommand(cmd_line) {}
 
 void JobsCommand::execute() {
+<<<<<<< HEAD
     SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
     JobsList* list = SmallShell::getInstance().getList();
+=======
+    //SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETT
+    JobsList *lst=  SmallShell::getInstance().getList();
+    for (JobsList::JobEntry &job : lst->m_jobs) {
+        std::cout << "[" << job.getJobID() << "] " << job.getCMD() << "\n";
+    }
+>>>>>>> 22c11bd05143180ee73ef9710663f97644ba0f53
 }
 
 JobsList::JobsList():m_maxID(-1) {}
@@ -611,7 +624,8 @@ JobsList::JobEntry *JobsList::getLastJob() { //DONE
 void JobsList::removeFinishedJobs() {
     std::vector<int> ids;
     for(JobsList::JobEntry &job : m_jobs){
-        int result = waitpid(job.getJobPid(), nullptr, WNOHANG);
+        pid_t pid = job.getJobPid();
+        int result = waitpid(pid, nullptr, WNOHANG);
         if(result == -1 || result == job.getJobPid()){ //TODO: if error occured what should we do
             ids.push_back(job.getJobID());
         }
@@ -649,9 +663,9 @@ void JobsList::killAllJobs() {
 
     for (JobsList::JobEntry &job : m_jobs)
     {
+        pid_t pid = job.getJobPid();
         std::cout << job.getJobPid() << ": " << job.getCMD() << "\n";
-
-        if (kill(job.getJobPid(), SIGKILL) != 0) // failure
+        if (kill(pid, SIGKILL) != 0) // failure
         {
             perror("smash error: kill failed");
         }
@@ -673,45 +687,55 @@ int JobsList::getSize() const {
 
 ///////////////////////**COMMAND NUMBER 6 ---- FG**//////////////////////
 ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
-    JobsList* lst = SmallShell::getInstance().getList();
 
-    if (lst->getSize() == 0 && m_args.size() == 1) {
-        std::cerr << "smash error: fg: jobs list is empty\n";
-    }else if (m_args.size() > 2) { //if we have more than one argument
-        std::cerr << "smash error: fg: invalid arguments\n";
-    }if (m_args.size() == 2) {
-        if(!checkFormatNumber(m_args[1])){
-            std::cerr << "smash error: fg: invalid arguments\n";
-        }else if (lst->getJobById(std::atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
-            std::cerr << "smash error: fg: jobs list is empty\n";
-        }
-    }
 
 }
 
 
 void ForegroundCommand::execute() {
     JobsList* lst = SmallShell::getInstance().getList();
-    int id = -1;
-    if (m_args.size() == 1) {
-        id = lst->getLastJob()->getJobID();
-    }else {
-        id = atoi(m_args[1].c_str());
-    }
+    if (lst->getSize() == 0 && m_args.size() == 1) {
+        std::cerr << "smash error: fg: jobs list is empty\n";
+        return;
+    }else if (m_args.size() > 2) { //if we have more than one argument
+        std::cerr << "smash error: fg: invalid arguments\n";
+        return;
 
+    } else if(m_args.size() == 2 && !checkFormatNumber(m_args[1])){
+            std::cerr << "smash error: fg: invalid arguments\n";
+        return;
+    }else if (m_args.size() == 2 && lst->getJobById(std::atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
+            std::cerr << "smash error: fg: job-id " << std::atoi(m_args[1].c_str()) << " does not exist\n";
+        return;
+    }
+    else {
+        int id = -1;
+        if (m_args.size() == 1) {
+            id = lst->getLastJob()->getJobID();
+        }else {
+            id = atoi(m_args[1].c_str());
+        }
+
+<<<<<<< HEAD
 
     JobsList::JobEntry* j =lst->getJobById(id);
     SmallShell::getInstance().setCurrFGPID(j->getJobPid());
+=======
+        JobsList::JobEntry* j =lst->getJobById(id); //MA
+        pid_t p = j->getJobPid();
+        SmallShell::getInstance().setCurrFGPID(p);
+>>>>>>> 22c11bd05143180ee73ef9710663f97644ba0f53
 
-    std::cout<< j->getCMD() << " " << j->getJobPid()<<"\n";
+        std::cout<< j->getCMD() << " " << p <<"\n";
 
-    SmallShell::getInstance().m_job_list.removeJobById(j->getJobID());
+        SmallShell::getInstance().m_job_list.removeJobById(j->getJobID());
 
-    if(waitpid(j->getJobPid(), nullptr,WUNTRACED) == -1){
-        perror("smash error: waitpid failed");
+        if(waitpid(p, nullptr,WUNTRACED) == -1){
+            perror("smash error: waitpid failed");
+        }
+
+        SmallShell::getInstance().setCurrFGPID(-1);
     }
-
-    SmallShell::getInstance().setCurrFGPID(-1);
 }
 
 ///////////////////////**COMMAND NUMBER 7 ---- QUIT**//////////////////////
@@ -737,8 +761,7 @@ bool checkSignum(std::string sig) {
     if (sig[0] != '-') {
         return false;
     }
-    if (sig.length() >= 2 ) {}
-      while (sig[i]) {
+    while (sig[i]) {
            if (!isdigit(sig[i])) {
             return false;
           }
@@ -750,42 +773,45 @@ bool checkSignum(std::string sig) {
 }
 
 KillCommand::KillCommand(const char *cmd_line): BuiltInCommand(cmd_line){
-    if(m_args.size() > 3 || m_args.size() < 2){
-        std::cerr << "smash error: kill: invalid arguments\n" ;
-    }
-    else if (!checkSignum(m_args[1]) || !checkFormatNumber(m_args[2])) {
-        std::cerr << "smash error: kill: invalid arguments\n" ;
-    }else {
-        m_jobID = std::atoi(m_args[2].c_str());
-        m_signal_num = std::stoi(m_args[1].substr(1));
-        if (m_signal_num < 0 || m_signal_num > 31) {
-            errno = EINVAL;
-            std::cerr <<"smash error: kill failed\n";
-        }
-        if(!SmallShell::getInstance().getList()->getJobById(m_jobID)){
-            std::cerr << "smash error: kill: job-id "<<m_jobID<<" does not exist\n" ;
-            return;
-        }
-    }
+
 
 }
 
 void KillCommand::execute() {
-    JobsList* list = SmallShell::getInstance().getList();
-    JobsList::JobEntry *job = list->getJobById(m_jobID);
-    if (job != nullptr)
-    {
-        if (kill(job->getJobPid(),m_signal_num ) != 0) // failure
-        {
-            perror("smash error: kill failed");
-            return;
-        }
-        std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
+    if (m_args.size() != 3) {
+        std::cerr << "smash error: kill: invalid arguments\n";
+        return;
     }
-    if(m_signal_num == SIGKILL){
+
+    if (!checkSignum(m_args[1]) || !checkFormatNumber(m_args[2])) {
+        std::cerr << "smash error: kill: invalid arguments\n";
+        return;
+    }
+
+    m_signal_num = std::stoi(m_args[1].substr(1));
+    m_jobID = std::atoi(m_args[2].c_str());
+
+    JobsList* list = SmallShell::getInstance().getList();
+    JobsList::JobEntry* job = list->getJobById(m_jobID);
+
+    if (!job) {
+        std::cerr << "smash error: kill: job-id " << m_jobID << " does not exist\n";
+        return;
+    }
+
+    if (kill(job->getJobPid(), m_signal_num) != 0) {
+        perror("smash error: kill failed");
+        return;
+    }
+
+    std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
+
+    // Handle SIGKILL explicitly
+    if (m_signal_num == SIGKILL) {
         list->removeJobById(m_jobID);
     }
 }
+
 ///////////////////////**COMMAND NUMBER 9 ---- ALIAS**//////////////////////
 bool is_special(const std::string& name) {
     return name == "whoami"  || name == "listdir"
@@ -799,39 +825,40 @@ bool is_builtin(const std::string& name) {
 }
 
 aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
-
-
-    // Define the regex pattern for alias validation
-
+    // Convert cmd_line to a string for processing
     if (m_args.size() != 1) {
-        std::string pattern = R"(^(alias [a-zA-Z0-9_]+='[^']*')$)";
-        std::regex regex_pattern(pattern);
-
-        // Convert cmd_line to a string for processing
         std::string input = std::string(cmd_line);
-
-        // Validate input format using regex
-        if (!std::regex_match(input, regex_pattern)) {
+        // Check for the "alias" prefix
+        if (input.find("alias ") != 0) {
+            std::cout <<"debug 2 \n";
             std::cerr << "smash error: alias: invalid alias format\n";
             return;
         }
 
         // Find the position of '='
         size_t equal_pos = input.find('=');
-        if (equal_pos == std::string::npos) { // Check if '=' is missing
+        if (equal_pos == std::string::npos) { // '=' is required
+            std::cout << "debug 1 \n";
             std::cerr << "smash error: alias: invalid alias format\n";
             return;
         }
 
         // Extract alias name (remove "alias " prefix)
-        std::string name = input.substr(6, equal_pos - 6);
-        name = std::string(name.begin(), name.end()); // Optional: Trim whitespace if needed
+        std::string name = input.substr(6, equal_pos - 6); // From index 6 to just before '='
+        name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end()); // Remove whitespace
 
-        // Extract command between single quotes
+        // Validate the alias name using regex
+        std::string name_pattern = R"(^[a-zA-Z0-9_]+$)";
+        std::regex regex_name(name_pattern);
+        if (!std::regex_match(name, regex_name)) {
+            std::cerr << "smash error: alias: invalid alias name\n";
+            return;
+        }
+
+        // Extract the command part between single quotes
         size_t start_quote = input.find('\'', equal_pos);
         size_t end_quote = input.rfind('\'');
         std::string command;
-
         if (start_quote != std::string::npos && end_quote != std::string::npos && start_quote < end_quote) {
             command = input.substr(start_quote + 1, end_quote - start_quote - 1);
         } else {
@@ -840,16 +867,6 @@ aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
         }
 
         // Check for duplicate alias names in the aliases map
-        for (const auto &p : SmallShell::getInstance().m_aliases) {
-            if (p.first == name) {
-            std::cerr << "smash error: alias:" <<name<< "already exists or is a reserved command\n";
-                return;
-            }
-        }
-        if (is_special(name)||is_builtin(name)) {
-            std::cerr << "smash error: alias: " <<name<< " already exists or is a reserved command\n";
-            return;
-        }
 
         // Assign values to class members
         m_A_command = command;
@@ -857,15 +874,30 @@ aliasCommand::aliasCommand(const char *cmd_line) : BuiltInCommand(cmd_line) {
     }
 }
 
-
 void aliasCommand::execute() {
     if(m_args.size() == 1){
         for(const auto& p : SmallShell::getInstance().m_aliases){
             std::cout<<p.first<<"='"<< p.second << "'\n" ;
         }
     }else{
+
+        for (const auto &p : SmallShell::getInstance().m_aliases) {
+            if (p.first == m_name) {
+                std::cerr << "smash error: alias: " << m_name << " already exists\n";
+                return;
+            }
+        }
+
+        // Check if the name is a reserved command
+        if (is_special(m_name) || is_builtin(m_name)) {
+            std::cerr << "smash error: alias: " << m_name << " is a reserved command\n";
+            return;
+        }
+
         SmallShell::getInstance().m_aliases.push_back(pair<std::string,
                                                       std::string>(m_name,m_A_command));
+
+
     }
 
 }
@@ -933,10 +965,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
 
     string cmd_s = _trim(string(cmd_line));
     size_t first_delim = cmd_s.find_first_of(" \n");
-
     std::string firstWord = cmd_s.substr(0, first_delim);
-
-
 
     // Extract the remaining part (args)
     std::string args;
@@ -959,8 +988,12 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
             return nullptr;
         }
     }
+<<<<<<< HEAD
     if (is_redirectional(cmd_line)) {
 
+=======
+    if (is_redirectional(cmd_line) == true) {
+>>>>>>> 22c11bd05143180ee73ef9710663f97644ba0f53
         return new RedirectionCommand(cmd_line);
     }
 
