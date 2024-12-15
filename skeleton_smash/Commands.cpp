@@ -778,10 +778,10 @@ void KillCommand::execute() {
         return;
     }
 
- //   if (!checkSignum(m_args[1]) || !checkFormatNumber(m_args[2])) {
-   //     std::cerr << "smash error: kill: invalid arguments\n";
-     //   return;
-    //}
+    if (!checkSignum(m_args[1]) || !checkFormatNumber(m_args[2])) {
+        std::cerr << "smash error: kill: invalid arguments\n";
+        return;
+    }
 
     m_signal_num = std::stoi(m_args[1].substr(1));
     m_jobID = std::atoi(m_args[2].c_str());
@@ -793,13 +793,12 @@ void KillCommand::execute() {
         std::cerr << "smash error: kill: job-id " << m_jobID << " does not exist\n";
         return;
     }
-
+    std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
     if (kill(job->getJobPid(), m_signal_num) != 0) {
         perror("smash error: kill failed");
         return;
     }
 
-    std::cout << "signal number " << m_signal_num << " was sent to pid " << job->getJobPid() << "\n";
 
     // Handle SIGKILL explicitly
     if (m_signal_num == SIGKILL) {
