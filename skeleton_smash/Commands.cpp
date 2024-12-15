@@ -679,12 +679,14 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
     }else if (m_args.size() > 2) { //if we have more than one argument
         std::cerr << "smash error: fg: invalid arguments\n";
     }if (m_args.size() == 2) {
-     //   if(!checkFormatNumber(m_args[1])){
-       //     std::cerr << "smash error: fg: invalid arguments\n";
-         if (lst->getJobById(atoi(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
+        if(!checkFormatNumber(m_args[1])){
+            std::cerr << "smash error: fg: invalid arguments\n";
+        }else if (lst->getJobById(std::strtol(m_args[1].c_str())) == nullptr) { //TODO: WE NEED TO CHECK IF VALID FORMAT
             std::cerr << "smash error: fg: jobs list is empty\n";
         }
     }
+    std::cout << "fg is built?:\n";
+
 }
 
 
