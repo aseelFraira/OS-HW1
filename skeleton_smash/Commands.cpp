@@ -778,10 +778,10 @@ void KillCommand::execute() {
         return;
     }
 
-    if (!checkSignum(m_args[1]) || !checkFormatNumber(m_args[2])) {
-        std::cerr << "smash error: kill: invalid arguments\n";
-        return;
-    }
+ //   if (!checkSignum(m_args[1]) || !checkFormatNumber(m_args[2])) {
+   //     std::cerr << "smash error: kill: invalid arguments\n";
+     //   return;
+    //}
 
     m_signal_num = std::stoi(m_args[1].substr(1));
     m_jobID = std::atoi(m_args[2].c_str());
