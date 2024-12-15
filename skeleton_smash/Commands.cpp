@@ -658,9 +658,9 @@ void JobsList::killAllJobs() {
 
     for (JobsList::JobEntry &job : m_jobs)
     {
+        pid_t pid = job.getJobPid();
         std::cout << job.getJobPid() << ": " << job.getCMD() << "\n";
-
-        if (kill(job.getJobPid(), SIGKILL) != 0) // failure
+        if (kill(pid, SIGKILL) != 0) // failure
         {
             perror("smash error: kill failed");
         }
