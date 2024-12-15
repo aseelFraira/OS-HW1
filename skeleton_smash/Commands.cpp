@@ -957,6 +957,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
     if (is_redirectional(cmd_line)) {
         return new RedirectionCommand(cmd_line);
     }
+    std::cout << "first is ?: " <<firstWord<<"\n";
 
 
     if (firstWord == "chprompt") {
@@ -975,7 +976,6 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
       return new JobsCommand(cmd_line);
   }
   else if (firstWord.compare("fg") == 0) {
-        std::cout << "fg is built?: " <<"\n";
         return new ForegroundCommand(cmd_line);
   }
   else if (firstWord.compare("quit") == 0) {
