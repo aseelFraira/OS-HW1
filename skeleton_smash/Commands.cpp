@@ -685,7 +685,6 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
             std::cerr << "smash error: fg: jobs list is empty\n";
         }
     }
-    std::cout << "fg is built?:\n";
 
 }
 
@@ -699,6 +698,8 @@ void ForegroundCommand::execute() {
     }else {
         id = atoi(m_args[1].c_str());
     }
+    std::cout << "fg is built?:\n";
+
     JobsList::JobEntry* j =lst->getJobById(id); //MA
     SmallShell::getInstance().setCurrFGPID(j->getJobPid());
 
