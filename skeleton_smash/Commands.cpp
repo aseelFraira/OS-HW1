@@ -1005,9 +1005,9 @@ std::string SmallShell::m_smash_prompt = "smash";
 
 void SmallShell::executeCommand(const char *cmd_line) {
     m_job_list.removeFinishedJobs();
-    std::cout<<"finished is prob? "<<std::endl;
 
     Command *command = CreateCommand(cmd_line);
+    std::cout<<"create is prob? "<<std::endl;
 
     if (command) {
         try {
