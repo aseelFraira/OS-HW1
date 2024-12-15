@@ -573,6 +573,7 @@ JobsCommand::JobsCommand(const char *cmd_line): BuiltInCommand(cmd_line) {}
 
 void JobsCommand::execute() {
     SmallShell::getInstance().m_job_list.printJobsList(); //TODO::BETTER BE SETTER!
+    JobsList* list = SmallShell::getInstance().getList();
 }
 
 JobsList::JobsList():m_maxID(-1) {}
@@ -698,7 +699,8 @@ void ForegroundCommand::execute() {
         id = atoi(m_args[1].c_str());
     }
 
-    JobsList::JobEntry* j =lst->getJobById(id); //MA
+
+    JobsList::JobEntry* j =lst->getJobById(id);
     SmallShell::getInstance().setCurrFGPID(j->getJobPid());
 
     std::cout<< j->getCMD() << " " << j->getJobPid()<<"\n";
@@ -958,6 +960,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
         }
     }
     if (is_redirectional(cmd_line)) {
+
         return new RedirectionCommand(cmd_line);
     }
 
