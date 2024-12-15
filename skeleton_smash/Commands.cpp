@@ -690,7 +690,7 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line) : BuiltInCommand(cmd_
 
 
 void ForegroundCommand::execute() {
-
+    std::cout << "fg is built?:\n";
     JobsList* lst = SmallShell::getInstance().getList();
     int id = -1;
     if (m_args.size() == 1) {
@@ -698,7 +698,6 @@ void ForegroundCommand::execute() {
     }else {
         id = atoi(m_args[1].c_str());
     }
-    std::cout << "fg is built?:\n";
 
     JobsList::JobEntry* j =lst->getJobById(id); //MA
     SmallShell::getInstance().setCurrFGPID(j->getJobPid());
@@ -1010,7 +1009,6 @@ void SmallShell::executeCommand(const char *cmd_line) {
     m_job_list.removeFinishedJobs();
 
     Command *command = CreateCommand(cmd_line);
-    std::cout<<"create is prob? "<<command->getCommand()<<std::endl;
     if (command) {
         try {
             command->execute();
