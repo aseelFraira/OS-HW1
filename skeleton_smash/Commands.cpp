@@ -878,14 +878,14 @@ void aliasCommand::execute() {
 
         for (const auto &p : SmallShell::getInstance().m_aliases) {
             if (p.first == m_name) {
-                std::cerr << "smash error: alias: " << m_name << " already exists\n";
+                std::cerr << "smash error: alias: " << m_name << " already exists or is a reserved command\n";
                 return;
             }
         }
 
         // Check if the name is a reserved command
         if (is_special(m_name) || is_builtin(m_name)) {
-            std::cerr << "smash error: alias: " << m_name << " is a reserved command\n";
+            std::cerr << "smash error: alias: " << m_name << " already exists or is a reserved command\n";
             return;
         }
 
@@ -900,16 +900,18 @@ void aliasCommand::execute() {
 ///////////////////////**COMMAND NUMBER 10 ---- UNALIAS**//////////////////////
 
 unaliasCommand::unaliasCommand(const char *cmd_line,const std::string& aliasName) : BuiltInCommand(cmd_line,aliasName){
-    if(m_args.size() == 1){
-        std::cerr << "smash error: unalias: not enough arguments\n";
-    }
+
 }
 void unaliasCommand::execute() {
+    if(m_args.size() == 1){
+        std::cerr << "smash error: unalias: not enough arguments\n";
+        return;
+    }
     int size = m_args.size();
     for(int i = 1; i < size;i++){
         if(!SmallShell::getInstance().removeAlias(m_args[i])){
-            std::cerr << "smash error: unalias: not enough arguments\n";
-            //TODO:
+            std::cerr << "smash error: unalias: "<< m_args[i]<<" alias does not exist\n";
+            return;
         }
     }
 }
