@@ -822,7 +822,7 @@ void JobsList::addJob(Command *cmd,pid_t pid ,bool isStopped) { //NOTE:HERE WE S
             id = getLastJob()->getJobID();
         }
         m_jobs.push_back(JobEntry(id + 1, pid,
-                                  cmd->getCommandLINE(),isStopped));
+                                  _trim(cmd->getCommandLINE()),isStopped));
     }
 }
 JobsList::~JobsList() = default;
